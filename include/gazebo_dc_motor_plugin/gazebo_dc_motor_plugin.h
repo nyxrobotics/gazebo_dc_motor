@@ -54,11 +54,11 @@
 #include <gazebo/common/common.hh>
 
 // ros_control
-#include <gazebo_ros_control/robot_hw_sim.h>
+#include <gazebo_dc_motor_plugin/robot_hw_sim.h>
 #include <controller_manager/controller_manager.h>
 #include <transmission_interface/transmission_parser.h>
 
-namespace gazebo_ros_control
+namespace gazebo_dc_motor_plugin
 {
 
 class GazeboRosControlPlugin : public gazebo::ModelPlugin
@@ -99,7 +99,7 @@ protected:
   gazebo::event::ConnectionPtr update_connection_;
 
   // Interface loader
-  boost::shared_ptr<pluginlib::ClassLoader<gazebo_ros_control::RobotHWSim> > robot_hw_sim_loader_;
+  boost::shared_ptr<pluginlib::ClassLoader<gazebo_dc_motor_plugin::GazeboDCMotorHWInterface> > robot_hw_sim_loader_;
   void load_robot_hw_sim_srv();
 
   // Strings
@@ -111,7 +111,7 @@ protected:
 
   // Robot simulator interface
   std::string robot_hw_sim_type_str_;
-  boost::shared_ptr<gazebo_ros_control::RobotHWSim> robot_hw_sim_;
+  boost::shared_ptr<gazebo_dc_motor_plugin::GazeboDCMotorHWInterface> robot_hw_sim_;
 
   // Controller manager
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;

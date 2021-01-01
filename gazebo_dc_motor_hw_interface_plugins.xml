@@ -1,0 +1,11 @@
+<library path="lib/libgazebo_dc_motor_plugin">
+
+  <class
+    name="gazebo_dc_motor_plugin/GazeboDCMotorHWInterface"
+    type="gazebo_dc_motor_plugin::GazeboDCMotorHWInterface"
+    base_class_type="gazebo_dc_motor_plugin::GazeboHWInterface">
+    <description>
+      A default robot simulation interface which constructs joint handles from an SDF/URDF.
+    </description>
+  </class>
+</library>

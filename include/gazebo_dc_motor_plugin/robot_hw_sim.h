@@ -48,7 +48,7 @@
 #include <transmission_interface/transmission_info.h>
 #include <urdf/model.h>
 
-namespace gazebo_ros_control {
+namespace gazebo_dc_motor_plugin {
 
   // Struct for passing loaded joint data
   struct JointData
@@ -64,12 +64,12 @@ namespace gazebo_ros_control {
 
   /// \brief Gazebo plugin version of RobotHW
   ///
-  /// An object of class RobotHWSim represents a robot's simulated hardware.
-  class RobotHWSim : public hardware_interface::RobotHW
+  /// An object of class GazeboDCMotorHWInterface represents a robot's simulated hardware.
+  class GazeboDCMotorHWInterface : public hardware_interface::RobotHW
   {
   public:
 
-    virtual ~RobotHWSim() { }
+    virtual ~GazeboDCMotorHWInterface() { }
 
     /// \brief Initialize the simulated robot hardware
     ///

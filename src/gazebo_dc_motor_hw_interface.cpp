@@ -39,7 +39,7 @@
 */
 
 
-#include <gazebo_ros_control/default_robot_hw_sim.h>
+#include <gazebo_dc_motor_plugin/gazebo_dc_motor_hw_interface.h>
 #include <urdf/model.h>
 
 
@@ -53,11 +53,11 @@ double clamp(const double val, const double min_val, const double max_val)
 
 }
 
-namespace gazebo_ros_control
+namespace gazebo_dc_motor_plugin
 {
 
 
-bool DefaultRobotHWSim::initSim(
+bool DefaultGazeboDCMotorHWInterface::initSim(
   const std::string& robot_namespace,
   ros::NodeHandle model_nh,
   gazebo::physics::ModelPtr parent_model,
@@ -90,13 +90,13 @@ bool DefaultRobotHWSim::initSim(
     // Check that this transmission has one joint
     if(transmissions[j].joints_.size() == 0)
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim","Transmission " << transmissions[j].name_
+      ROS_WARN_STREAM_NAMED("gazebo_dc_motor_hw_interface","Transmission " << transmissions[j].name_
         << " has no associated joints.");
       continue;
     }
     else if(transmissions[j].joints_.size() > 1)
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim","Transmission " << transmissions[j].name_
+      ROS_WARN_STREAM_NAMED("gazebo_dc_motor_hw_interface","Transmission " << transmissions[j].name_
         << " has more than one joint. Currently the default robot hardware simulation "
         << " interface only supports one.");
       continue;
@@ -109,21 +109,21 @@ bool DefaultRobotHWSim::initSim(
     {
       // TODO: Deprecate HW interface specification in actuators in ROS J
       joint_interfaces = transmissions[j].actuators_[0].hardware_interfaces_;
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "The <hardware_interface> element of tranmission " <<
+      ROS_WARN_STREAM_NAMED("gazebo_dc_motor_hw_interface", "The <hardware_interface> element of tranmission " <<
         transmissions[j].name_ << " should be nested inside the <joint> element, not <actuator>. " <<
         "The transmission will be properly loaded, but please update " <<
         "your robot model to remain compatible with future versions of the plugin.");
     }
     if (joint_interfaces.empty())
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "Joint " << transmissions[j].joints_[0].name_ <<
+      ROS_WARN_STREAM_NAMED("gazebo_dc_motor_hw_interface", "Joint " << transmissions[j].joints_[0].name_ <<
         " of transmission " << transmissions[j].name_ << " does not specify any hardware interface. " <<
         "Not adding it to the robot hardware simulation.");
       continue;
     }
     else if (joint_interfaces.size() > 1)
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "Joint " << transmissions[j].joints_[0].name_ <<
+      ROS_WARN_STREAM_NAMED("gazebo_dc_motor_hw_interface", "Joint " << transmissions[j].joints_[0].name_ <<
         " of transmission " << transmissions[j].name_ << " specifies multiple hardware interfaces. " <<
         "Currently the default robot hardware simulation interface only supports one. Using the first entry");
       //continue;
@@ -141,7 +141,7 @@ bool DefaultRobotHWSim::initSim(
     const std::string& hardware_interface = joint_interfaces.front();
 
     // Debug
-    ROS_DEBUG_STREAM_NAMED("default_robot_hw_sim","Loading joint '" << joint_names_[j]
+    ROS_DEBUG_STREAM_NAMED("gazebo_dc_motor_hw_interface","Loading joint '" << joint_names_[j]
       << "' of type '" << hardware_interface << "'");
 
     // Create joint state interface for all joints
@@ -176,7 +176,7 @@ bool DefaultRobotHWSim::initSim(
     }
     else
     {
-      ROS_FATAL_STREAM_NAMED("default_robot_hw_sim","No matching hardware interface found for '"
+      ROS_FATAL_STREAM_NAMED("gazebo_dc_motor_hw_interface","No matching hardware interface found for '"
         << hardware_interface << "' while loading interfaces for " << joint_names_[j] );
       return false;
     }
@@ -186,7 +186,7 @@ bool DefaultRobotHWSim::initSim(
     }
 
     // Get the gazebo joint that corresponds to the robot joint.
-    //ROS_DEBUG_STREAM_NAMED("default_robot_hw_sim", "Getting pointer to gazebo joint: "
+    //ROS_DEBUG_STREAM_NAMED("gazebo_dc_motor_hw_interface", "Getting pointer to gazebo joint: "
     //  << joint_names_[j]);
     gazebo::physics::JointPtr joint = parent_model->GetJoint(joint_names_[j]);
     if (!joint)
@@ -206,7 +206,7 @@ bool DefaultRobotHWSim::initSim(
     physics_type_ = physics->GetType();
     if (physics_type_.empty())
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "No physics type found.");
+      ROS_WARN_STREAM_NAMED("gazebo_dc_motor_hw_interface", "No physics type found.");
     }
 
     registerJointLimits(joint_names_[j], joint_handle, joint_control_methods_[j],
@@ -217,7 +217,7 @@ bool DefaultRobotHWSim::initSim(
     {
       // Initialize the PID controller. If no PID gain values are found, use joint->SetAngle() or
       // joint->SetParam("vel") to control the joint.
-      const ros::NodeHandle nh(robot_namespace + "/gazebo_ros_control/pid_gains/" +
+      const ros::NodeHandle nh(robot_namespace + "/gazebo_dc_motor_plugin/pid_gains/" +
                                joint_names_[j]);
       if (pid_controllers_[j].init(nh, true))
       {
@@ -258,7 +258,7 @@ bool DefaultRobotHWSim::initSim(
   return true;
 }
 
-void DefaultRobotHWSim::readSim(ros::Time time, ros::Duration period)
+void DefaultGazeboDCMotorHWInterface::readSim(ros::Time time, ros::Duration period)
 {
   for(unsigned int j=0; j < n_dof_; j++)
   {
@@ -282,7 +282,7 @@ void DefaultRobotHWSim::readSim(ros::Time time, ros::Duration period)
   }
 }
 
-void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period)
+void DefaultGazeboDCMotorHWInterface::writeSim(ros::Time time, ros::Duration period)
 {
   // If the E-stop is active, joints controlled by position commands will maintain their positions.
   if (e_stop_active_)
@@ -321,7 +321,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period)
 #if GAZEBO_MAJOR_VERSION >= 9
         sim_joints_[j]->SetPosition(0, joint_position_command_[j], true);
 #else
-        ROS_WARN_ONCE("The default_robot_hw_sim plugin is using the Joint::SetPosition method without preserving the link velocity.");
+        ROS_WARN_ONCE("The gazebo_dc_motor_hw_interface plugin is using the Joint::SetPosition method without preserving the link velocity.");
         ROS_WARN_ONCE("As a result, gravity will not be simulated correctly for your model.");
         ROS_WARN_ONCE("Please set gazebo_pid parameters, switch to the VelocityJointInterface or EffortJointInterface, or upgrade to Gazebo 9.");
         ROS_WARN_ONCE("For details, see https://github.com/ros-simulation/gazebo_ros_pkgs/issues/612");
@@ -386,7 +386,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period)
   }
 }
 
-void DefaultRobotHWSim::eStopActive(const bool active)
+void DefaultGazeboDCMotorHWInterface::eStopActive(const bool active)
 {
   e_stop_active_ = active;
 }
@@ -394,7 +394,7 @@ void DefaultRobotHWSim::eStopActive(const bool active)
 // Register the limits of the joint specified by joint_name and joint_handle. The limits are
 // retrieved from joint_limit_nh. If urdf_model is not NULL, limits are retrieved from it also.
 // Return the joint's type, lower position limit, upper position limit, and effort limit.
-void DefaultRobotHWSim::registerJointLimits(const std::string& joint_name,
+void DefaultGazeboDCMotorHWInterface::registerJointLimits(const std::string& joint_name,
                          const hardware_interface::JointHandle& joint_handle,
                          const ControlMethod ctrl_method,
                          const ros::NodeHandle& joint_limit_nh,
@@ -515,4 +515,4 @@ void DefaultRobotHWSim::registerJointLimits(const std::string& joint_name,
 
 }
 
-PLUGINLIB_EXPORT_CLASS(gazebo_ros_control::DefaultRobotHWSim, gazebo_ros_control::RobotHWSim)
+PLUGINLIB_EXPORT_CLASS(gazebo_dc_motor_plugin::DefaultGazeboDCMotorHWInterface, gazebo_dc_motor_plugin::GazeboDCMotorHWInterface)

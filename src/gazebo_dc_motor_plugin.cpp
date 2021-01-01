@@ -42,10 +42,10 @@
 // Boost
 #include <boost/bind.hpp>
 
-#include <gazebo_ros_control/gazebo_ros_control_plugin.h>
+#include <gazebo_dc_motor_plugin/gazebo_dc_motor_plugin.h>
 #include <urdf/model.h>
 
-namespace gazebo_ros_control
+namespace gazebo_dc_motor_plugin
 {
 
 GazeboRosControlPlugin::~GazeboRosControlPlugin()
@@ -57,7 +57,7 @@ GazeboRosControlPlugin::~GazeboRosControlPlugin()
 // Overloaded Gazebo entry point
 void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf)
 {
-  ROS_INFO_STREAM_NAMED("gazebo_ros_control","Loading gazebo_ros_control plugin");
+  ROS_INFO_STREAM_NAMED("gazebo_dc_motor_plugin","Loading gazebo_dc_motor_plugin plugin");
 
 
   // Save pointers to the model
@@ -74,7 +74,7 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
   // Check that ROS has been initialized
   if(!ros::isInitialized())
   {
-    ROS_FATAL_STREAM_NAMED("gazebo_ros_control","A ROS node for Gazebo has not been initialized, unable to load plugin. "
+    ROS_FATAL_STREAM_NAMED("gazebo_dc_motor_plugin","A ROS node for Gazebo has not been initialized, unable to load plugin. "
       << "Load the Gazebo system plugin 'libgazebo_ros_api_plugin.so' in the gazebo_ros package)");
     return;
   }
@@ -106,21 +106,21 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
   }
   else
   {
-    robot_hw_sim_type_str_ = "gazebo_ros_control/DefaultRobotHWSim";
-    ROS_DEBUG_STREAM_NAMED("loadThread","Using default plugin for RobotHWSim (none specified in URDF/SDF)\""<<robot_hw_sim_type_str_<<"\"");
+    robot_hw_sim_type_str_ = "gazebo_dc_motor_plugin/DefaultGazeboDCMotorHWInterface";
+    ROS_DEBUG_STREAM_NAMED("loadThread","Using default plugin for GazeboDCMotorHWInterface (none specified in URDF/SDF)\""<<robot_hw_sim_type_str_<<"\"");
   }
 
   // temporary fix to bug regarding the robotNamespace in default_robot_hw_sim.cpp (see #637)
   std::string robot_ns = robot_namespace_;
-  if(robot_hw_sim_type_str_ == "gazebo_ros_control/DefaultRobotHWSim"){
+  if(robot_hw_sim_type_str_ == "gazebo_dc_motor_plugin/DefaultGazeboDCMotorHWInterface"){
       if (sdf_->HasElement("legacyModeNS")) {
           if( sdf_->GetElement("legacyModeNS")->Get<bool>() ){
               robot_ns = "";
           }
       }else{
           robot_ns = "";
-          ROS_ERROR("GazeboRosControlPlugin missing <legacyModeNS> while using DefaultRobotHWSim, defaults to true.\n"
-                    "This setting assumes you have an old package with an old implementation of DefaultRobotHWSim, "
+          ROS_ERROR("GazeboRosControlPlugin missing <legacyModeNS> while using DefaultGazeboDCMotorHWInterface, defaults to true.\n"
+                    "This setting assumes you have an old package with an old implementation of DefaultGazeboDCMotorHWInterface, "
                     "where the robotNamespace is disregarded and absolute paths are used instead.\n"
                     "If you do not want to fix this issue in an old package just set <legacyModeNS> to true.\n"
                     );
@@ -142,19 +142,19 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
     // Check the period against the simulation period
     if( control_period_ < gazebo_period )
     {
-      ROS_ERROR_STREAM_NAMED("gazebo_ros_control","Desired controller update period ("<<control_period_
+      ROS_ERROR_STREAM_NAMED("gazebo_dc_motor_plugin","Desired controller update period ("<<control_period_
         <<" s) is faster than the gazebo simulation period ("<<gazebo_period<<" s).");
     }
     else if( control_period_ > gazebo_period )
     {
-      ROS_WARN_STREAM_NAMED("gazebo_ros_control","Desired controller update period ("<<control_period_
+      ROS_WARN_STREAM_NAMED("gazebo_dc_motor_plugin","Desired controller update period ("<<control_period_
         <<" s) is slower than the gazebo simulation period ("<<gazebo_period<<" s).");
     }
   }
   else
   {
     control_period_ = gazebo_period;
-    ROS_DEBUG_STREAM_NAMED("gazebo_ros_control","Control period not found in URDF/SDF, defaulting to Gazebo period of "
+    ROS_DEBUG_STREAM_NAMED("gazebo_dc_motor_plugin","Control period not found in URDF/SDF, defaulting to Gazebo period of "
       << control_period_);
   }
 
@@ -170,7 +170,7 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
     e_stop_sub_ = model_nh_.subscribe(e_stop_topic, 1, &GazeboRosControlPlugin::eStopCB, this);
   }
 
-  ROS_INFO_NAMED("gazebo_ros_control", "Starting gazebo_ros_control plugin in namespace: %s", robot_namespace_.c_str());
+  ROS_INFO_NAMED("gazebo_dc_motor_plugin", "Starting gazebo_dc_motor_plugin plugin in namespace: %s", robot_namespace_.c_str());
 
   // Read urdf from ros parameter server then
   // setup actuators and mechanism control node.
@@ -178,17 +178,17 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
   const std::string urdf_string = getURDF(robot_description_);
   if (!parseTransmissionsFromURDF(urdf_string))
   {
-    ROS_ERROR_NAMED("gazebo_ros_control", "Error parsing URDF in gazebo_ros_control plugin, plugin not active.\n");
+    ROS_ERROR_NAMED("gazebo_dc_motor_plugin", "Error parsing URDF in gazebo_dc_motor_plugin plugin, plugin not active.\n");
     return;
   }
 
-  // Load the RobotHWSim abstraction to interface the controllers with the gazebo model
+  // Load the GazeboDCMotorHWInterface abstraction to interface the controllers with the gazebo model
   try
   {
     robot_hw_sim_loader_.reset
-      (new pluginlib::ClassLoader<gazebo_ros_control::RobotHWSim>
-        ("gazebo_ros_control",
-          "gazebo_ros_control::RobotHWSim"));
+      (new pluginlib::ClassLoader<gazebo_dc_motor_plugin::GazeboDCMotorHWInterface>
+        ("gazebo_dc_motor_plugin",
+          "gazebo_dc_motor_plugin::GazeboDCMotorHWInterface"));
 
     robot_hw_sim_ = robot_hw_sim_loader_->createInstance(robot_hw_sim_type_str_);
     urdf::Model urdf_model;
@@ -196,7 +196,7 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
 
     if(!robot_hw_sim_->initSim(robot_ns, model_nh_, parent_model_, urdf_model_ptr, transmissions_))
     {
-      ROS_FATAL_NAMED("gazebo_ros_control","Could not initialize robot simulation interface");
+      ROS_FATAL_NAMED("gazebo_dc_motor_plugin","Could not initialize robot simulation interface");
       return;
     }
 
@@ -213,10 +213,10 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
   }
   catch(pluginlib::LibraryLoadException &ex)
   {
-    ROS_FATAL_STREAM_NAMED("gazebo_ros_control","Failed to create robot simulation interface loader: "<<ex.what());
+    ROS_FATAL_STREAM_NAMED("gazebo_dc_motor_plugin","Failed to create robot simulation interface loader: "<<ex.what());
   }
 
-  ROS_INFO_NAMED("gazebo_ros_control", "Loaded gazebo_ros_control.");
+  ROS_INFO_NAMED("gazebo_dc_motor_plugin", "Loaded gazebo_dc_motor_plugin.");
 }
 
 // Called by the world update start event
@@ -288,14 +288,14 @@ std::string GazeboRosControlPlugin::getURDF(std::string param_name) const
     std::string search_param_name;
     if (model_nh_.searchParam(param_name, search_param_name))
     {
-      ROS_INFO_ONCE_NAMED("gazebo_ros_control", "gazebo_ros_control plugin is waiting for model"
+      ROS_INFO_ONCE_NAMED("gazebo_dc_motor_plugin", "gazebo_dc_motor_plugin plugin is waiting for model"
         " URDF in parameter [%s] on the ROS param server.", search_param_name.c_str());
 
       model_nh_.getParam(search_param_name, urdf_string);
     }
     else
     {
-      ROS_INFO_ONCE_NAMED("gazebo_ros_control", "gazebo_ros_control plugin is waiting for model"
+      ROS_INFO_ONCE_NAMED("gazebo_dc_motor_plugin", "gazebo_dc_motor_plugin plugin is waiting for model"
         " URDF in parameter [%s] on the ROS param server.", robot_description_.c_str());
 
       model_nh_.getParam(param_name, urdf_string);
@@ -303,7 +303,7 @@ std::string GazeboRosControlPlugin::getURDF(std::string param_name) const
 
     usleep(100000);
   }
-  ROS_DEBUG_STREAM_NAMED("gazebo_ros_control", "Recieved urdf from param server, parsing...");
+  ROS_DEBUG_STREAM_NAMED("gazebo_dc_motor_plugin", "Recieved urdf from param server, parsing...");
 
   return urdf_string;
 }

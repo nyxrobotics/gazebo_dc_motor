@@ -38,8 +38,8 @@
    Desc:   Hardware Interface for any simulated robot in Gazebo
 */
 
-#ifndef _GAZEBO_ROS_CONTROL___DEFAULT_ROBOT_HW_SIM_H_
-#define _GAZEBO_ROS_CONTROL___DEFAULT_ROBOT_HW_SIM_H_
+#ifndef _GAZEBO_DC_MOTOR_PLUGIN___DEFAULT_ROBOT_HW_SIM_H_
+#define _GAZEBO_DC_MOTOR_PLUGIN___DEFAULT_ROBOT_HW_SIM_H_
 
 // ros_control
 #include <control_toolbox/pid.h>
@@ -60,18 +60,18 @@
 #include <angles/angles.h>
 #include <pluginlib/class_list_macros.h>
 
-// gazebo_ros_control
-#include <gazebo_ros_control/robot_hw_sim.h>
+// gazebo_dc_motor_plugin
+#include <gazebo_dc_motor_plugin/robot_hw_sim.h>
 
 // URDF
 #include <urdf/model.h>
 
 
 
-namespace gazebo_ros_control
+namespace gazebo_dc_motor_plugin
 {
 
-class DefaultRobotHWSim : public gazebo_ros_control::RobotHWSim
+class DefaultGazeboDCMotorHWInterface : public gazebo_dc_motor_plugin::GazeboDCMotorHWInterface
 {
 public:
 
@@ -140,8 +140,8 @@ protected:
   bool e_stop_active_, last_e_stop_active_;
 };
 
-typedef boost::shared_ptr<DefaultRobotHWSim> DefaultRobotHWSimPtr;
+typedef boost::shared_ptr<DefaultGazeboDCMotorHWInterface> DefaultGazeboDCMotorHWInterfacePtr;
 
 }
 
-#endif // #ifndef __GAZEBO_ROS_CONTROL_PLUGIN_DEFAULT_ROBOT_HW_SIM_H_
+#endif // #ifndef __GAZEBO_DC_MOTOR_PLUGIN_PLUGIN_DEFAULT_ROBOT_HW_SIM_H_
