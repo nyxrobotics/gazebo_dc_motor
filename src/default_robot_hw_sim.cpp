@@ -242,6 +242,7 @@ bool DefaultRobotHWSim::initSim(
             break;
         }
       } else {
+        ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "No PID gains found!");
 // joint->SetParam("fmax") must be called if joint->SetAngle() or
 // joint->SetParam("vel") are
 // going to be called. joint->SetParam("fmax") must *not* be called if
@@ -309,10 +310,14 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
   vj_limits_interface_.enforceLimits(period);
 
   for (unsigned int j = 0; j < n_dof_; j++) {
+    double simulated_velocity = sim_joints_[j]->GetVelocity(0);
+    double simulated_load = sim_joints_[j]->GetForce((unsigned int)(0));
+    double dt = period.toSec();
     switch (joint_control_methods_[j]) {
       case EFFORT: {
         const double effort = e_stop_active_ ? 0 : joint_effort_command_[j];
-        sim_joints_[j]->SetForce(0, effort);
+        double dc_effort = dc_motor_model_.motorModelUpdate(dt, simulated_velocity, simulated_load);
+        sim_joints_[j]->SetForce(0, dc_effort);
       } break;
 
       case POSITION:
@@ -356,7 +361,8 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        sim_joints_[j]->SetForce(0, effort);
+        double dc_effort = dc_motor_model_.motorModelUpdate(dt, simulated_velocity, simulated_load);
+        sim_joints_[j]->SetForce(0, dc_effort);
       } break;
 
       case VELOCITY:
@@ -384,7 +390,8 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        sim_joints_[j]->SetForce(0, effort);
+        double dc_effort = dc_motor_model_.motorModelUpdate(dt, simulated_velocity, simulated_load);
+        sim_joints_[j]->SetForce(0, dc_effort);
         break;
     }
   }
