@@ -35,7 +35,8 @@
  *********************************************************************/
 
 /* Author: Dave Coleman, Jonathan Bohren
-   Desc:   Gazebo plugin for ros_control that allows 'hardware_interfaces' to be plugged in
+   Desc:   Gazebo plugin for ros_control that allows 'hardware_interfaces' to be
+   plugged in
            using pluginlib
 */
 
@@ -44,27 +45,24 @@
 #include <boost/thread.hpp>
 
 // ROS
-#include <ros/ros.h>
 #include <pluginlib/class_loader.h>
+#include <ros/ros.h>
 #include <std_msgs/Bool.h>
 
 // Gazebo
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
 
 // ros_control
-#include <gazebo_ros_control/robot_hw_sim.h>
 #include <controller_manager/controller_manager.h>
+#include <gazebo_dc_motor/robot_hw_sim.h>
 #include <transmission_interface/transmission_parser.h>
 
-namespace gazebo_ros_control
-{
+namespace gazebo_dc_motor {
 
-class GazeboRosControlPlugin : public gazebo::ModelPlugin
-{
-public:
-
+class GazeboRosControlPlugin : public gazebo::ModelPlugin {
+ public:
   virtual ~GazeboRosControlPlugin();
 
   // Overloaded Gazebo entry point
@@ -82,11 +80,11 @@ public:
   // Get Transmissions from the URDF
   bool parseTransmissionsFromURDF(const std::string& urdf_string);
 
-protected:
+ protected:
   void eStopCB(const std_msgs::BoolConstPtr& e_stop_active);
 
   // Node Handles
-  ros::NodeHandle model_nh_; // namespaces to robot name
+  ros::NodeHandle model_nh_;  // namespaces to robot name
 
   // Pointer to the model
   gazebo::physics::ModelPtr parent_model_;
@@ -99,7 +97,8 @@ protected:
   gazebo::event::ConnectionPtr update_connection_;
 
   // Interface loader
-  boost::shared_ptr<pluginlib::ClassLoader<gazebo_ros_control::RobotHWSim> > robot_hw_sim_loader_;
+  boost::shared_ptr<pluginlib::ClassLoader<gazebo_dc_motor::RobotHWSim> >
+      robot_hw_sim_loader_;
   void load_robot_hw_sim_srv();
 
   // Strings
@@ -111,7 +110,7 @@ protected:
 
   // Robot simulator interface
   std::string robot_hw_sim_type_str_;
-  boost::shared_ptr<gazebo_ros_control::RobotHWSim> robot_hw_sim_;
+  boost::shared_ptr<gazebo_dc_motor::RobotHWSim> robot_hw_sim_;
 
   // Controller manager
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
@@ -124,8 +123,5 @@ protected:
   // e_stop_active_ is true if the emergency stop is active.
   bool e_stop_active_, last_e_stop_active_;
   ros::Subscriber e_stop_sub_;  // Emergency stop subscriber
-
 };
-
-
 }

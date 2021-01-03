@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(gazebo_ros_control)
+project(gazebo_dc_motor)
 
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS
@@ -42,7 +42,7 @@ include_directories(include
 )
 
 ## Libraries
-add_library(${PROJECT_NAME} src/gazebo_ros_control_plugin.cpp)
+add_library(${PROJECT_NAME} src/gazebo_dc_motor_plugin.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 add_library(default_robot_hw_sim src/default_robot_hw_sim.cpp)
