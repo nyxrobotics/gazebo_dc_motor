@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <!-- We use a custom world for the rrbot so that the camera angle is launched correctly -->
+
+  <world name="default">
+<!--     <physics type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <gravity>0 0 -9.8</gravity>
+    </physics> -->
+
+<!--     <physics type="bullet">
+      <max_contacts>20</max_contacts>
+      <bullet>
+        <solver>
+          <type>quick</type>
+          <iters>50</iters>
+          <sor>1.3</sor>
+          <min_step_size>0.0001</min_step_size>
+        </solver>
+        <constraints>
+          <split_impulse>1</split_impulse>
+          <cfm>0</cfm>
+          <erp>0.2</erp>
+          <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
+          <contact_surface_layer>0.001</contact_surface_layer>
+        </constraints>
+      </bullet>
+      <real_time_factor>1</real_time_factor>
+      <max_step_size>0.001</max_step_size>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics> -->
+
+<!--     <physics type='roki'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <roki>
+        <solver_type>Volume</solver_type>
+        <contact_info>
+          <compensation>1000</compensation>
+          <relaxation>0.01</relaxation>
+          <static_friction>5.0</static_friction>
+          <friction>3.0</friction>
+        </contact_info>
+        <debug_print>true</debug_print>
+      </roki>
+    </physics> -->
+
+<!--     <physics name="roki" type="roki" default="true">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <roki>
+        <solver_type>Volume</solver_type>
+        <contact_info>
+          <compensation>1000</compensation>
+          <relaxation>0.01</relaxation>
+          <static_friction>5.0</static_friction>
+          <friction>3.0</friction>
+        </contact_info>
+        <debug_print>true</debug_print>
+      </roki>
+    </physics> -->
+    <physics type="roki">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <roki>
+        <!-- <solver_type>1</solver_type> -->
+        <solver_type>"Volume"</solver_type>
+        <contact_info>
+          <compensation>1000</compensation>
+          <relaxation>0.01</relaxation>
+          <static_friction>5.0</static_friction>
+          <friction>3.0</friction>
+        </contact_info>
+        <debug_print>true</debug_print>
+      </roki>
+    </physics>
+    <!-- end physics presets, models and other world properties go here -->
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Focus camera on tall pendulum -->
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>4.927360 -4.376610 3.740080 0.000000 0.275643 2.356190</pose>
+        <view_controller>orbit</view_controller>
+      </camera>
+    </gui>
+
+  </world>
+</sdf>

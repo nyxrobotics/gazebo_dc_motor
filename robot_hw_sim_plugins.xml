@@ -1,4 +1,4 @@
-<library path="lib/libdefault_robot_hw_sim">
+<library path="lib/libdc_motor_robot_hw_sim">
 
   <class
     name="gazebo_dc_motor/DefaultRobotHWSim"

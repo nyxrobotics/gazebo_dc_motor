@@ -29,7 +29,7 @@ catkin_package(
     urdf
     angles
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME} default_robot_hw_sim
+  LIBRARIES ${PROJECT_NAME} dc_motor_robot_hw_sim
 )
 
 link_directories(
@@ -45,11 +45,11 @@ include_directories(include
 add_library(${PROJECT_NAME} src/gazebo_dc_motor_plugin.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-add_library(default_robot_hw_sim src/default_robot_hw_sim.cpp src/dc_motor_model.cpp)
-target_link_libraries(default_robot_hw_sim ${catkin_LIBRARIES})
+add_library(dc_motor_robot_hw_sim src/dc_motor_robot_hw_sim.cpp src/dc_motor_model.cpp)
+target_link_libraries(dc_motor_robot_hw_sim ${catkin_LIBRARIES})
 
 ## Install
-install(TARGETS ${PROJECT_NAME} default_robot_hw_sim
+install(TARGETS ${PROJECT_NAME} dc_motor_robot_hw_sim
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
