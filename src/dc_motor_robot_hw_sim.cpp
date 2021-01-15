@@ -321,9 +321,10 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
     switch (joint_control_methods_[j]) {
       case EFFORT: {
         const double effort = e_stop_active_ ? 0 : joint_effort_command_[j];
-        // double dc_effort = dc_motor_model_.motorModelUpdate(dt, simulated_velocity, simulated_load);
-        // sim_joints_[j]->SetForce(0, dc_effort);
-        sim_joints_[j]->SetForce(0, effort);
+        double duty = effort;//joint_effort_limits_[j];
+        double dc_effort = dc_motor_model_.motorModelUpdate(duty, dt, simulated_velocity, simulated_load);
+        sim_joints_[j]->SetForce(0, dc_effort);
+        // sim_joints_[j]->SetForce(0, effort);
       } break;
 
       case POSITION:
@@ -367,7 +368,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        // double dc_effort = dc_motor_model_.motorModelUpdate(dt, simulated_velocity, simulated_load);
+        // double dc_effort = dc_motor_model_.motorModelUpdate(effort, dt, simulated_velocity, simulated_load);
         // sim_joints_[j]->SetForce(0, dc_effort);
         sim_joints_[j]->SetForce(0, effort);
       } break;
@@ -397,7 +398,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        double dc_effort = dc_motor_model_.motorModelUpdate(dt, simulated_velocity, simulated_load);
+        double dc_effort = dc_motor_model_.motorModelUpdate(effort, dt, simulated_velocity, simulated_load);
         sim_joints_[j]->SetForce(0, dc_effort);
         break;
     }

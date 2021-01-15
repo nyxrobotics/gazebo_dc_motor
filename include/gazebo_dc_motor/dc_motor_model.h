@@ -14,7 +14,7 @@ class DCMotorModel {
  public:
   DCMotorModel();
   ~DCMotorModel();
-  double motorModelUpdate(double dt, double actual_omega, double current_torque);
+  double motorModelUpdate(double input_duty, double dt, double actual_omega, double current_torque);
 
  private:
 

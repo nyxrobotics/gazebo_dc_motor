@@ -25,16 +25,17 @@ DCMotorModel::~DCMotorModel() {}
 
 
 // Motor Model update function
-double DCMotorModel::motorModelUpdate(double dt, double output_shaft_omega,
+double DCMotorModel::motorModelUpdate(double input_duty, double dt, double output_shaft_omega,
                                       double actual_load_torque) {
-  if (input_ > 1.0) {
-    input_ = 1.0;
-  } else if (input_ < -1.0) {
-    input_ = -1.0;
+
+  if (input_duty > 1.0) {
+    input_duty = 1.0;
+  } else if (input_duty < -1.0) {
+    input_duty = -1.0;
   }
   double T = actual_load_torque /
              gear_ratio_;  // external loading torque converted to internal side
-  double V = input_ * supply_voltage_;  // power supply voltage * (command input
+  double V = input_duty * supply_voltage_;  // power supply voltage * (command input
                                         // for motor velocity)
   internal_omega_ =
       output_shaft_omega *
