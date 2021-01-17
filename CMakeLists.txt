@@ -45,7 +45,12 @@ include_directories(include
 add_library(${PROJECT_NAME} src/gazebo_dc_motor_plugin.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-add_library(dc_motor_robot_hw_sim src/dc_motor_robot_hw_sim.cpp src/dc_motor_model.cpp)
+add_library(dc_motor_robot_hw_sim
+  src/dc_motor_robot_hw_sim.cpp
+  src/dc_motor_model.cpp
+  src/dc_motor_current_model.cpp
+  src/low_pass_filter.cpp
+)
 target_link_libraries(dc_motor_robot_hw_sim ${catkin_LIBRARIES})
 
 ## Install

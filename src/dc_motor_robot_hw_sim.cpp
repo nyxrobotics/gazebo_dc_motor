@@ -315,6 +315,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
   vj_limits_interface_.enforceLimits(period);
 
   for (unsigned int j = 0; j < n_dof_; j++) {
+    double simulated_position = sim_joints_[j]->Position(0);
     double simulated_velocity = sim_joints_[j]->GetVelocity(0);
     double simulated_load = sim_joints_[j]->GetForce((unsigned int)(0));
     double dt = period.toSec();
@@ -322,7 +323,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
       case EFFORT: {
         const double effort = e_stop_active_ ? 0 : joint_effort_command_[j];
         double duty = effort;//joint_effort_limits_[j];
-        double dc_effort = dc_motor_model_.motorModelUpdate(duty, dt, simulated_velocity, simulated_load);
+        double dc_effort = dc_motor_model_.update(effort, simulated_position);
         sim_joints_[j]->SetForce(0, dc_effort);
         // sim_joints_[j]->SetForce(0, effort);
       } break;
@@ -368,8 +369,6 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        // double dc_effort = dc_motor_model_.motorModelUpdate(effort, dt, simulated_velocity, simulated_load);
-        // sim_joints_[j]->SetForce(0, dc_effort);
         sim_joints_[j]->SetForce(0, effort);
       } break;
 
@@ -398,8 +397,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        double dc_effort = dc_motor_model_.motorModelUpdate(effort, dt, simulated_velocity, simulated_load);
-        sim_joints_[j]->SetForce(0, dc_effort);
+        sim_joints_[j]->SetForce(0, effort);
         break;
     }
   }

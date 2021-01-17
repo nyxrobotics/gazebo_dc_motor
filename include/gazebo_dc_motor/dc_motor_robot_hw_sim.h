@@ -65,7 +65,8 @@
 
 // URDF
 #include <urdf/model.h>
-#include "gazebo_dc_motor/dc_motor_model.h"
+// MotorModel
+#include "gazebo_dc_motor/dc_motor_current_model.h"
 
 namespace gazebo_dc_motor {
 
@@ -137,7 +138,7 @@ class DefaultRobotHWSim : public gazebo_dc_motor::RobotHWSim {
 
   // e_stop_active_ is true if the emergency stop is active.
   bool e_stop_active_, last_e_stop_active_;
-  DCMotorModel dc_motor_model_;
+  DCMotorCurrentModel dc_motor_model_;
 };
 
 typedef boost::shared_ptr<DefaultRobotHWSim> DefaultRobotHWSimPtr;

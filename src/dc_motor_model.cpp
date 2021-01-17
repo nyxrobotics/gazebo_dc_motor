@@ -1,5 +1,3 @@
-
-
 #include "gazebo_dc_motor/dc_motor_model.h"
 
 
