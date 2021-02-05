@@ -47,7 +47,6 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 add_library(dc_motor_robot_hw_sim
   src/dc_motor_robot_hw_sim.cpp
-  src/dc_motor_model.cpp
   src/dc_motor_current_model.cpp
   src/dc_motor_duty_model.cpp
   src/low_pass_filter.cpp
