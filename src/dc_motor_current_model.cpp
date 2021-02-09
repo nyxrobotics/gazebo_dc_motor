@@ -32,25 +32,30 @@ void DCMotorCurrentModel::setLowPassTimeConstant(double input_time_constant) {
   max_internal_torque_low_pass_filter_.setTimeConstant(input_time_constant);
 }
 double DCMotorCurrentModel::update(double input_torque,double input_position){
+  // Get motor speed
   static double previous_position = input_position;
   double position_diff = input_position - previous_position;
   previous_position = input_position;
+  // Rotational motion through the origin　(only for continuous joint)
   if(position_diff > M_PI){
     position_diff -= (double)( (int)( position_diff / (2.0*M_PI) ) )*2.0*M_PI;
   }else if(position_diff < -M_PI){
     position_diff += (double)( (int)(-position_diff / (2.0*M_PI) ) )*2.0*M_PI;
   }
   double motor_speed = position_diff / dt_;
+  // Calculate the characteristic curve of the DC motor.
+  // 1. Calculate maximum and minimum torque at current angular velocity. (with positive and negative rated voltage)
+  // 2. Limit the output torque to the maximum torque that the motor can achieve.
   double output_torque_tmp = input_torque;
   double max_internal_torque_raw =  max_motor_torque_ * ( max_motor_speed_ - motor_speed ) / max_motor_speed_;
   max_internal_torque_ = max_internal_torque_low_pass_filter_.update(max_internal_torque_raw);
   min_internal_torque_ = max_internal_torque_ - 2.0 * max_motor_torque_;
   if(output_torque_tmp > max_internal_torque_){
     output_torque_tmp = max_internal_torque_;
-    ROS_INFO("output_tmp:%f(>max) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,motor_speed);
+    // ROS_INFO("output_tmp:%f(>max) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,motor_speed);
   }else if(output_torque_tmp < min_internal_torque_){
     output_torque_tmp = min_internal_torque_;
-    ROS_INFO("output_tmp:%f(<min) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,motor_speed);
+    // ROS_INFO("output_tmp:%f(<min) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,motor_speed);
   }
   output_torque_ = output_torque_tmp;
   return output_torque_;

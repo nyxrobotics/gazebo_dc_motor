@@ -32,28 +32,31 @@ void DCMotorDutyModel::setLowPassTimeConstant(double input_time_constant) {
   motor_speed_low_pass_filter_.setTimeConstant(input_time_constant);
 }
 double DCMotorDutyModel::update(double input_duty,double input_position){
-  // scale duty_in (max_motor_torque_ -> 1.0)
+  // Scale duty_in (torque:max_motor_torque_ -> duty:1.0)
   double duty = input_duty / max_motor_torque_;
   if(duty > 1.0){
     duty = 1.0;
   }else if(duty < -1.0){
     duty = -1.0;
   }
-  // get motor speed
+  // Get motor speed
   static double previous_position = input_position;
   double position_diff = input_position - previous_position;
   previous_position = input_position;
+  // Rotational motion through the origin　(only for continuous joint)
   if(position_diff > M_PI){
     position_diff -= (double)( (int)( position_diff / (2.0*M_PI) ) )*2.0*M_PI;
   }else if(position_diff < -M_PI){
     position_diff += (double)( (int)(-position_diff / (2.0*M_PI) ) )*2.0*M_PI;
   }
   double motor_speed = position_diff / dt_;
+  // Calculate the characteristic curve of the DC motor.
+  // 1. Obtain a graph of the relationship between angular velocity and torque using the input voltage. (input_voltage = duty * rated_voltage)
+  // 2. Calculate the torque by substituting the current angular velocity.
   internal_speed_ = motor_speed_low_pass_filter_.update(motor_speed);
-  // calcurate torque
   internal_max_speed_ = duty * max_motor_speed_;
   output_torque_ = (internal_max_speed_ - motor_speed) * max_motor_torque_ / max_motor_speed_;
-  ROS_INFO("output_torque_:%f , input_duty:%f , speed:%f", output_torque_ , input_duty , motor_speed);
+  // ROS_INFO("output_torque_:%f , input_duty:%f , speed:%f", output_torque_ , input_duty , motor_speed);
   return output_torque_;
 }
 

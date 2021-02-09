@@ -318,6 +318,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
   for (unsigned int j = 0; j < n_dof_; j++) {
     double simulated_position = sim_joints_[j]->Position(0);
     double dt = period.toSec();
+    dc_motor_model_.setDt(dt);
     switch (joint_control_methods_[j]) {
       case EFFORT: {
         const double effort = e_stop_active_ ? 0 : joint_effort_command_[j];
