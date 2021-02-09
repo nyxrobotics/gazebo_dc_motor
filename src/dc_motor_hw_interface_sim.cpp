@@ -77,6 +77,7 @@ bool DefaultRobotHWSim::initSim(
   joint_effort_command_.resize(n_dof_);
   joint_position_command_.resize(n_dof_);
   joint_velocity_command_.resize(n_dof_);
+  dc_motor_model_.resize(n_dof_);
 
   // Initialize values
   for (unsigned int j = 0; j < n_dof_; j++) {
@@ -267,7 +268,7 @@ bool DefaultRobotHWSim::initSim(
       + joint_names_[j]);
     double stall_effort, noload_speed, back_emf_lpf_time_constant;
     if (nh_motor.getParam("stall_effort", stall_effort)){
-      dc_motor_model_.setMaxMotorTorque(stall_effort);
+      dc_motor_model_[j].setMaxMotorTorque(stall_effort);
     }else{
       ROS_WARN_STREAM("Parameter not found: "
         + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
@@ -275,7 +276,7 @@ bool DefaultRobotHWSim::initSim(
     }
     
     if (nh_motor.getParam("noload_speed", noload_speed)){
-      dc_motor_model_.setMaxMotorSpeed(noload_speed);
+      dc_motor_model_[j].setMaxMotorSpeed(noload_speed);
     }else{
       ROS_WARN_STREAM("Parameter not found: "
         + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
@@ -283,7 +284,7 @@ bool DefaultRobotHWSim::initSim(
     }
     
     if (nh_motor.getParam("back_emf_lpf_time_constant", back_emf_lpf_time_constant)){
-      dc_motor_model_.setLowPassTimeConstant(back_emf_lpf_time_constant);
+      dc_motor_model_[j].setLowPassTimeConstant(back_emf_lpf_time_constant);
     }else{
       ROS_WARN_STREAM("Parameter not found: "
         + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
@@ -347,11 +348,11 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
   for (unsigned int j = 0; j < n_dof_; j++) {
     double simulated_position = sim_joints_[j]->Position(0);
     double dt = period.toSec();
-    dc_motor_model_.setDt(dt);
+    dc_motor_model_[j].setDt(dt);
     switch (joint_control_methods_[j]) {
       case EFFORT: {
         const double effort = e_stop_active_ ? 0 : joint_effort_command_[j];
-        double dc_effort = dc_motor_model_.update(effort, simulated_position);
+        double dc_effort = dc_motor_model_[j].update(effort, simulated_position);
         sim_joints_[j]->SetForce(0, dc_effort);
         // sim_joints_[j]->SetForce(0, effort);
       } break;
@@ -397,7 +398,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        double dc_effort = dc_motor_model_.update(effort, simulated_position);
+        double dc_effort = dc_motor_model_[j].update(effort, simulated_position);
         sim_joints_[j]->SetForce(0, dc_effort);
         // sim_joints_[j]->SetForce(0, effort);
       } break;
@@ -427,7 +428,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        double dc_effort = dc_motor_model_.update(effort, simulated_position);
+        double dc_effort = dc_motor_model_[j].update(effort, simulated_position);
         sim_joints_[j]->SetForce(0, dc_effort);
         // sim_joints_[j]->SetForce(0, effort);
         break;

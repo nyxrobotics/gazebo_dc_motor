@@ -140,7 +140,7 @@ class DefaultRobotHWSim : public gazebo_dc_motor::RobotHWSim {
   // e_stop_active_ is true if the emergency stop is active.
   bool e_stop_active_, last_e_stop_active_;
   // DCMotorCurrentModel dc_motor_model_;
-  DCMotorDutyModel dc_motor_model_;
+  std::vector<DCMotorDutyModel> dc_motor_model_;
 };
 
 typedef boost::shared_ptr<DefaultRobotHWSim> DefaultRobotHWSimPtr;
