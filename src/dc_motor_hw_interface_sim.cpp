@@ -261,6 +261,35 @@ bool DefaultRobotHWSim::initSim(
 #endif
       }
     }
+    // Get Motor Characteristics form ROS Params
+    const ros::NodeHandle nh_motor(robot_namespace
+      + "/gazebo_dc_motor/motor_characteristics/"
+      + joint_names_[j]);
+    double stall_effort, noload_speed, back_emf_lpf_time_constant;
+    if (nh_motor.getParam("stall_effort", stall_effort)){
+      dc_motor_model_.setMaxMotorTorque(stall_effort);
+    }else{
+      ROS_WARN_STREAM("Parameter not found: "
+        + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
+        + joint_names_[j] + "/stall_effort");
+    }
+    
+    if (nh_motor.getParam("noload_speed", noload_speed)){
+      dc_motor_model_.setMaxMotorSpeed(noload_speed);
+    }else{
+      ROS_WARN_STREAM("Parameter not found: "
+        + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
+        + joint_names_[j] + "/noload_speed");
+    }
+    
+    if (nh_motor.getParam("back_emf_lpf_time_constant", back_emf_lpf_time_constant)){
+      dc_motor_model_.setLowPassTimeConstant(back_emf_lpf_time_constant);
+    }else{
+      ROS_WARN_STREAM("Parameter not found: "
+        + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
+        + joint_names_[j] + "/back_emf_lpf_time_constant");
+    }
+
   }
 
   // Register interfaces
