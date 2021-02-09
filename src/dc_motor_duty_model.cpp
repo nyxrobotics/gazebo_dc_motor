@@ -50,6 +50,12 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
     position_diff += (double)( (int)(-position_diff / (2.0*M_PI) ) )*2.0*M_PI;
   }
   double motor_speed = position_diff / dt_;
+  // Limit speed (testing function)
+  if(motor_speed > 2.0 * max_motor_speed_){
+    motor_speed = 2.0 * max_motor_speed_;
+  }else if(motor_speed < -2.0 * max_motor_speed_){
+    motor_speed = -2.0 * max_motor_speed_;
+  }
   // Calculate the characteristic curve of the DC motor.
   // 1. Obtain a graph of the relationship between angular velocity and torque using the input voltage. (input_voltage = duty * rated_voltage)
   // 2. Calculate the torque by substituting the current angular velocity.
