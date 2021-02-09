@@ -82,8 +82,10 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent,
   // Get namespace for nodehandle
   if (sdf_->HasElement("robotNamespace")) {
     robot_namespace_ = sdf_->GetElement("robotNamespace")->Get<std::string>();
+    ROS_WARN_STREAM("[SDF element] robot_namespace is :" + robot_namespace_);
   } else {
     robot_namespace_ = parent_model_->GetName();  // default
+    ROS_WARN_STREAM("[SDF parent] robot_namespace is :" + robot_namespace_);
   }
 
   // Get robot_description ROS param name

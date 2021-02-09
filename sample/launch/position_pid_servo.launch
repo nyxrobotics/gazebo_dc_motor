@@ -24,6 +24,7 @@
 
   <!-- <param name="robot_description" textfile="$(find closed_kinematics_description)/xacro/04_pegasus.xacro" /> -->
   <param name="robot_description" command="xacro --inorder '$(find gazebo_dc_motor)/sample/xacro/position_pid_servo.xacro'" />
+  <rosparam file="$(find gazebo_dc_motor)/sample/config/gazebo_control_params.yaml" command="load" ns="test_robot_01"/>
   <!-- push robot_description to factory and spawn robot in gazebo -->
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen"
     args="-urdf -param robot_description -model test_robot_01 -x $(arg x) -y $(arg y) -z $(arg z)" />

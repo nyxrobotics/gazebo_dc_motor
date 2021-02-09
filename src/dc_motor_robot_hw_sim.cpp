@@ -248,6 +248,7 @@ bool DefaultRobotHWSim::initSim(
         }
       } else {
         ROS_WARN_STREAM_NAMED("dc_motor_robot_hw_sim", "No PID gains found!");
+        ROS_WARN_STREAM(robot_namespace + "/gazebo_dc_motor/pid_gains/" + joint_names_[j]);
 // joint->SetParam("fmax") must be called if joint->SetAngle() or
 // joint->SetParam("vel") are
 // going to be called. joint->SetParam("fmax") must *not* be called if
@@ -316,13 +317,10 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
 
   for (unsigned int j = 0; j < n_dof_; j++) {
     double simulated_position = sim_joints_[j]->Position(0);
-    double simulated_velocity = sim_joints_[j]->GetVelocity(0);
-    double simulated_load = sim_joints_[j]->GetForce((unsigned int)(0));
     double dt = period.toSec();
     switch (joint_control_methods_[j]) {
       case EFFORT: {
         const double effort = e_stop_active_ ? 0 : joint_effort_command_[j];
-        double duty = effort;//joint_effort_limits_[j];
         double dc_effort = dc_motor_model_.update(effort, simulated_position);
         sim_joints_[j]->SetForce(0, dc_effort);
         // sim_joints_[j]->SetForce(0, effort);
@@ -369,7 +367,9 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        sim_joints_[j]->SetForce(0, effort);
+        double dc_effort = dc_motor_model_.update(effort, simulated_position);
+        sim_joints_[j]->SetForce(0, dc_effort);
+        // sim_joints_[j]->SetForce(0, effort);
       } break;
 
       case VELOCITY:
@@ -397,7 +397,9 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
         const double effort =
             clamp(pid_controllers_[j].computeCommand(error, period),
                   -effort_limit, effort_limit);
-        sim_joints_[j]->SetForce(0, effort);
+        double dc_effort = dc_motor_model_.update(effort, simulated_position);
+        sim_joints_[j]->SetForce(0, dc_effort);
+        // sim_joints_[j]->SetForce(0, effort);
         break;
     }
   }

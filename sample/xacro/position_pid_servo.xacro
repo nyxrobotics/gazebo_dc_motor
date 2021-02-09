@@ -214,7 +214,7 @@
     <plugin name="gazebo_ros_control" filename="libgazebo_dc_motor.so"> 
       <robotNamespace>test_robot_01</robotNamespace> 
       <robotSimType>gazebo_dc_motor/DefaultRobotHWSim</robotSimType>
-      <legacyModeNS>true</legacyModeNS> 
+      <legacyModeNS>false</legacyModeNS> 
     </plugin>
   </gazebo>
 <!--   <gazebo>
@@ -224,6 +224,7 @@
       <legacyModeNS>true</legacyModeNS> 
     </plugin>
   </gazebo> -->
-  <xacro:default_motor_transmission joint_name="right_pad2_joint" gazebo_control_mode="effort"/>
+  <!-- <xacro:default_motor_transmission joint_name="right_pad2_joint" gazebo_control_mode="effort"/> -->
+  <xacro:default_motor_transmission joint_name="right_pad2_joint" gazebo_control_mode="position"/>
 </robot>
 
