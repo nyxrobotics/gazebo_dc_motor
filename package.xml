@@ -31,6 +31,6 @@
   <depend>angles</depend>
 
   <export>
-    <gazebo_dc_motor plugin="${prefix}/robot_hw_sim_plugins.xml"/>
+    <gazebo_dc_motor plugin="${prefix}/dc_motor_hw_interface_sim_plugins.xml"/>
   </export>
 </package>
