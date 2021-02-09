@@ -55,8 +55,9 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
   // 2. Calculate the torque by substituting the current angular velocity.
   internal_speed_ = motor_speed_low_pass_filter_.update(motor_speed);
   internal_max_speed_ = duty * max_motor_speed_;
-  output_torque_ = (internal_max_speed_ - motor_speed) * max_motor_torque_ / max_motor_speed_;
-  // ROS_INFO("output_torque_:%f , input_duty:%f , speed:%f", output_torque_ , input_duty , motor_speed);
+  // output_torque_ = (internal_max_speed_ - motor_speed) * max_motor_torque_ / max_motor_speed_;
+  output_torque_ = (internal_max_speed_ - internal_speed_) * max_motor_torque_ / max_motor_speed_;
+  // ROS_INFO("output_torque_:%f , input_duty:%f , speed:%f", output_torque_ , input_duty , internal_speed_);
   return output_torque_;
 }
 

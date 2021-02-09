@@ -44,7 +44,7 @@ double LowPassFilter::getData(void) {
   return low_pass_output_;
 }
 double LowPassFilter::update(double input_data) {
-  if( (dt_ / time_constant_) < 0.9 ){
+  if( (dt_ / time_constant_) < 0.9999 ){
     low_pass_output_ += (input_data - low_pass_output_) * dt_ / time_constant_;
   }else{
 //    ROS_INFO_THROTTLE (1.0, "No Low Pass Filter");
