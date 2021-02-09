@@ -266,6 +266,20 @@ bool DefaultRobotHWSim::initSim(
     const ros::NodeHandle nh_motor(robot_namespace
       + "/gazebo_dc_motor/motor_characteristics/"
       + joint_names_[j]);
+    bool use_current_model;
+    if (nh_motor.getParam("use_current_model", use_current_model)){
+      if(use_current_model){
+        ROS_WARN_STREAM("joint_names_[j] : Curremt Motor Model");
+        dc_motor_model_[j].setCurrentMode();
+      }else{
+        ROS_WARN_STREAM("joint_names_[j] : Duty Motor Model");
+        dc_motor_model_[j].setDutyMode();
+      }
+    }else{
+      ROS_WARN_STREAM("Parameter not found: "
+        + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
+        + joint_names_[j] + "/use_current_model");
+    }
     double stall_effort, noload_speed, back_emf_lpf_time_constant;
     if (nh_motor.getParam("stall_effort", stall_effort)){
       dc_motor_model_[j].setMaxMotorTorque(stall_effort);

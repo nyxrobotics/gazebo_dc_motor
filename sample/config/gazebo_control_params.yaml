@@ -2,12 +2,13 @@
 # Publish all joint states -----------------------------------
 gazebo_dc_motor:
   pid_gains:
-    right_pad2_joint: {p: 100.0, i: 0.01, d: 10.0}
+    right_pad2_joint: {p: 1000.0, i: 0.01, d: 10.0}
   motor_characteristics:
     right_pad2_joint:
-      stall_effort: 10.00
+      use_current_model: false
+      stall_effort: 1000.00
       noload_speed: 3.1416
-      back_emf_lpf_time_constant: 0.0
+      back_emf_lpf_time_constant: 0.00
 
 
 

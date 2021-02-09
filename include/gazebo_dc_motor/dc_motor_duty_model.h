@@ -22,7 +22,6 @@ class DCMotorDutyModel {
   double max_motor_speed_; //[rad/s]
   double max_motor_torque_; //[N*m]
   double output_torque_;
-  double rated_voltage_;
   //params for low-pass filter
   LowPassFilter motor_speed_low_pass_filter_;
   //internal value
