@@ -23,7 +23,8 @@ class DCMotorCurrentModel {
   double max_motor_torque_; //[N*m]
   double output_torque_;
   //params for low-pass filter
-  LowPassFilter max_internal_torque_low_pass_filter_;
+  LowPassFilter motor_speed_low_pass_filter_;
+  double internal_speed_;
   //internal value
   double max_internal_torque_;
   double min_internal_torque_;

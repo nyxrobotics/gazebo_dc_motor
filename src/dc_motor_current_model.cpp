@@ -10,8 +10,8 @@ DCMotorCurrentModel::DCMotorCurrentModel():
   min_internal_torque_(-1000.0),
   max_internal_torque_(1000.0)
  {
-  max_internal_torque_low_pass_filter_.setDt(0.001);
-  max_internal_torque_low_pass_filter_.setTimeConstant(0.001);
+  motor_speed_low_pass_filter_.setDt(0.001);
+  motor_speed_low_pass_filter_.setTimeConstant(0.001);
 }
 
 // Destructor
@@ -22,14 +22,14 @@ void DCMotorCurrentModel::setMaxMotorSpeed(double max_motor_speed) {
 }
 void DCMotorCurrentModel::setMaxMotorTorque(double max_motor_torque) {
   max_motor_torque_ = max_motor_torque;
-  max_internal_torque_low_pass_filter_.setMinMax(-max_motor_torque_, max_motor_torque_);
+  motor_speed_low_pass_filter_.setMinMax(-max_motor_torque_, max_motor_torque_);
 }
 void DCMotorCurrentModel::setDt(double input_dt) {
   dt_ = input_dt;
-  max_internal_torque_low_pass_filter_.setDt(input_dt);
+  motor_speed_low_pass_filter_.setDt(input_dt);
 }
 void DCMotorCurrentModel::setLowPassTimeConstant(double input_time_constant) {
-  max_internal_torque_low_pass_filter_.setTimeConstant(input_time_constant);
+  motor_speed_low_pass_filter_.setTimeConstant(input_time_constant);
 }
 double DCMotorCurrentModel::update(double input_torque,double input_position){
   // Get motor speed
@@ -46,16 +46,16 @@ double DCMotorCurrentModel::update(double input_torque,double input_position){
   // Calculate the characteristic curve of the DC motor.
   // 1. Calculate maximum and minimum torque at current angular velocity. (with positive and negative rated voltage)
   // 2. Limit the output torque to the maximum torque that the motor can achieve.
+  internal_speed_ = motor_speed_low_pass_filter_.update(motor_speed);
   double output_torque_tmp = input_torque;
-  double max_internal_torque_raw =  max_motor_torque_ * ( max_motor_speed_ - motor_speed ) / max_motor_speed_;
-  max_internal_torque_ = max_internal_torque_low_pass_filter_.update(max_internal_torque_raw);
+  max_internal_torque_ =  max_motor_torque_ * ( max_motor_speed_ - internal_speed_) / max_motor_speed_;
   min_internal_torque_ = max_internal_torque_ - 2.0 * max_motor_torque_;
   if(output_torque_tmp > max_internal_torque_){
     output_torque_tmp = max_internal_torque_;
-    // ROS_INFO("output_tmp:%f(>max) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,motor_speed);
+    // ROS_INFO("output_tmp:%f(>max) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,internal_speed_);
   }else if(output_torque_tmp < min_internal_torque_){
     output_torque_tmp = min_internal_torque_;
-    // ROS_INFO("output_tmp:%f(<min) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,motor_speed);
+    // ROS_INFO("output_tmp:%f(<min) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,internal_speed_);
   }
   output_torque_ = output_torque_tmp;
   return output_torque_;

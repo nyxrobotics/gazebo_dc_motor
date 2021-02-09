@@ -5,10 +5,10 @@ gazebo_dc_motor:
     right_pad2_joint: {p: 1000.0, i: 0.01, d: 10.0}
   motor_characteristics:
     right_pad2_joint:
-      use_current_model: false
+      use_current_model: true
       stall_effort: 1000.00
       noload_speed: 3.1416
-      back_emf_lpf_time_constant: 0.00
+      back_emf_lpf_time_constant: 0.0 # example -> Duty:0.002, Current:0.0
 
 
 
