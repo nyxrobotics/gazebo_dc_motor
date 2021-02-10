@@ -57,34 +57,36 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
   // 1. Obtain a graph of the relationship between angular velocity and torque using the input voltage. (input_voltage = duty * rated_voltage)
   // 2. Calculate the torque by substituting the current angular velocity.
   internal_speed_ = input_speed_low_pass_filter_.update(motor_speed);
-  if(internal_speed_ > max_motor_speed_){
-    internal_speed_ = max_motor_speed_;
-  }else if(internal_speed_ < -max_motor_speed_){
-    internal_speed_ = -max_motor_speed_;
-  }
-  // double internal_noload_speed = duty * max_motor_speed_;
+
+  double internal_noload_speed = duty * max_motor_speed_;
   double internal_stall_torque = duty * max_motor_torque_;
   // double output_torque_tmp = (internal_noload_speed - internal_speed_) * max_motor_torque_ / max_motor_speed_;
   double output_torque_tmp = internal_stall_torque - internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
   // ROS_INFO("output_torque_:%f , input_duty:%f , speed:%f", output_torque_ , input_duty , internal_speed_);
 
   // Ignore over-speed breaking (reverse-side) torque
+  if(internal_speed_ > internal_noload_speed && internal_noload_speed > 0.0){
+    internal_speed_ = internal_noload_speed;
+  }else if(internal_speed_ < internal_noload_speed && internal_noload_speed < 0.0){
+    internal_speed_ = internal_noload_speed;
+  }
+  double max_internal_torque =  internal_stall_torque * ( internal_noload_speed - internal_speed_) / internal_noload_speed;
+  double min_internal_torque = max_internal_torque - 2.0 * internal_stall_torque;
+  if(output_torque_tmp > max_internal_torque){
+    output_torque_tmp = max_internal_torque;
+  }else if(output_torque_tmp < min_internal_torque){
+    output_torque_tmp = min_internal_torque;
+  }
   if(output_torque_tmp * input_duty < 0.000001){
     output_torque_tmp = 0.0;
   }
-  if(input_duty > 0.0){
-    if(output_torque_tmp > internal_stall_torque * (1.0 - (internal_speed_/max_motor_speed_) ) ){
-      output_torque_tmp = internal_stall_torque * (1.0 - (internal_speed_/max_motor_speed_) );
-    }
-  }else{
-    if(output_torque_tmp < internal_stall_torque * (1.0 + (internal_speed_/max_motor_speed_) ) ){
-      output_torque_tmp = internal_stall_torque * (1.0 + (internal_speed_/max_motor_speed_) ) ;
-    }
+  if(abs(output_torque_tmp)>abs(internal_stall_torque)){
+    output_torque_tmp = internal_stall_torque;
   }
 
-  output_torque_ = output_torque_low_pass_filter_.update(output_torque_tmp);
   // output_torque_ = output_torque_low_pass_filter_.updateOnlyRising(output_torque_tmp);
   // output_torque_ = output_torque_tmp;
+  output_torque_ = output_torque_low_pass_filter_.update(output_torque_tmp);
   return output_torque_;
 }
 
