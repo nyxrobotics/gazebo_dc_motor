@@ -38,6 +38,8 @@ void DCMotorCurrentModel::setTorqueLowPassTimeConstant(double input_time_constan
   output_torque_low_pass_filter_.setTimeConstant(input_time_constant);
 }
 double DCMotorCurrentModel::update(double input_torque,double input_position){
+
+
   // Get motor speed
   static double previous_position = input_position;
   double position_diff = input_position - previous_position;
@@ -49,16 +51,6 @@ double DCMotorCurrentModel::update(double input_torque,double input_position){
     position_diff += (double)( (int)(-position_diff / (2.0*M_PI) ) )*2.0*M_PI;
   }
   double motor_speed = position_diff / dt_;
-  // Escape over-speed (testing)
-  if(motor_speed > 2.0 * max_motor_speed_){
-    motor_speed = 2.0 * max_motor_speed_;
-    output_torque_ = output_torque_low_pass_filter_.update(0.0);
-    return output_torque_;
-  }else if(motor_speed < -2.0 * max_motor_speed_){
-    motor_speed = -2.0 * max_motor_speed_;
-    output_torque_ = output_torque_low_pass_filter_.update(0.0);
-    return output_torque_;
-  }
   // Calculate the characteristic curve of the DC motor.
   // 1. Calculate maximum and minimum torque at current angular velocity. (with positive and negative rated voltage)
   // 2. Limit the output torque to the maximum torque that the motor can achieve.
@@ -72,6 +64,34 @@ double DCMotorCurrentModel::update(double input_torque,double input_position){
   }else if(output_torque_tmp < min_internal_torque_){
     output_torque_tmp = min_internal_torque_;
     // ROS_INFO("output_tmp:%f(<min) max:%f , min:%f , speed:%f",output_torque_tmp,max_internal_torque_,min_internal_torque_,internal_speed_);
+  }
+  // Escape over-speed (testing)
+  double input_limited = input_torque;
+  if(input_limited > 2.0 * max_motor_torque_){
+    input_limited = 2.0 * max_motor_torque_;
+  }else if(input_limited < -2.0 * max_motor_torque_){
+    input_limited = -2.0 * max_motor_torque_;
+  }
+  if(motor_speed > max_motor_speed_){
+    if(motor_speed > 2.0 * max_motor_speed_){
+      motor_speed = 2.0 * max_motor_speed_;
+    }
+    double default_ratio = (motor_speed - max_motor_speed_) / max_motor_speed_;
+    if(input_limited < 0.0){
+      output_torque_tmp = (default_ratio * input_limited) + ((1.0-default_ratio)*output_torque_tmp);
+    }else{
+      output_torque_tmp = (1.0-default_ratio)*output_torque_tmp;
+    }
+  }else if(motor_speed < -max_motor_speed_){
+    if(motor_speed < -2.0 * max_motor_speed_){
+      motor_speed = -2.0 * max_motor_speed_;
+    }
+    double default_ratio = (-motor_speed - max_motor_speed_) / max_motor_speed_;
+    if(input_limited > 0.0){
+      output_torque_tmp = (default_ratio * input_limited) + ((1.0-default_ratio)*output_torque_tmp);
+    }else{
+      output_torque_tmp = (1.0-default_ratio)*output_torque_tmp;
+    }
   }
   output_torque_ = output_torque_low_pass_filter_.update(output_torque_tmp);
   return output_torque_;

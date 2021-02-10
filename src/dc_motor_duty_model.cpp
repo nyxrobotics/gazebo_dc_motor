@@ -38,13 +38,15 @@ void DCMotorDutyModel::setTorqueLowPassTimeConstant(double input_time_constant) 
   output_torque_low_pass_filter_.setTimeConstant(input_time_constant);
 }
 double DCMotorDutyModel::update(double input_duty,double input_position){
-  // Scale duty_in (torque:max_motor_torque_ -> duty:1.0)
-  double duty = input_duty / max_motor_torque_;
-  if(duty > 1.0){
-    duty = 1.0;
-  }else if(duty < -1.0){
-    duty = -1.0;
+  double input_limited = input_duty;
+  if(input_limited > max_motor_torque_){
+    input_limited = max_motor_torque_;
+  }else if(input_limited < -max_motor_torque_){
+    input_limited = -max_motor_torque_;
   }
+  // Scale duty (torque:max_motor_torque_ -> duty:1.0)
+  double duty = input_limited / max_motor_torque_;
+
   // Get motor speed
   static double previous_position = input_position;
   double position_diff = input_position - previous_position;
@@ -56,16 +58,6 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
     position_diff += (double)( (int)(-position_diff / (2.0*M_PI) ) )*2.0*M_PI;
   }
   double motor_speed = position_diff / dt_;
-  // Escape over-speed (testing)
-  if(motor_speed > 2.0 * max_motor_speed_){
-    motor_speed = 2.0 * max_motor_speed_;
-    output_torque_ = output_torque_low_pass_filter_.update(0.0);
-    return output_torque_;
-  }else if(motor_speed < -2.0 * max_motor_speed_){
-    motor_speed = -2.0 * max_motor_speed_;
-    output_torque_ = output_torque_low_pass_filter_.update(0.0);
-    return output_torque_;
-  }
   // Calculate the characteristic curve of the DC motor.
   // 1. Obtain a graph of the relationship between angular velocity and torque using the input voltage. (input_voltage = duty * rated_voltage)
   // 2. Calculate the torque by substituting the current angular velocity.
@@ -73,6 +65,29 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
   internal_max_speed_ = duty * max_motor_speed_;
   double output_torque_tmp = (internal_max_speed_ - internal_speed_) * max_motor_torque_ / max_motor_speed_;
   // ROS_INFO("output_torque_:%f , input_duty:%f , speed:%f", output_torque_ , input_duty , internal_speed_);
+  // Escape over-speed (testing)
+  if(motor_speed > max_motor_speed_){
+    if(motor_speed > 2.0 * max_motor_speed_){
+      motor_speed = 2.0 * max_motor_speed_;
+    }
+    double default_ratio = (motor_speed - max_motor_speed_) / max_motor_speed_;
+    if(input_limited < 0.0){
+      output_torque_tmp = (default_ratio * input_limited) + ((1.0-default_ratio)*output_torque_tmp);
+    }else{
+      output_torque_tmp = (1.0-default_ratio)*output_torque_tmp;
+    }
+  }else if(motor_speed < -max_motor_speed_){
+    if(motor_speed < -2.0 * max_motor_speed_){
+      motor_speed = -2.0 * max_motor_speed_;
+    }
+    double default_ratio = (-motor_speed - max_motor_speed_) / max_motor_speed_;
+    if(input_limited > 0.0){
+      output_torque_tmp = (default_ratio * input_limited) + ((1.0-default_ratio)*output_torque_tmp);
+    }else{
+      output_torque_tmp = (1.0-default_ratio)*output_torque_tmp;
+    }
+  }
+
   output_torque_ = output_torque_low_pass_filter_.update(output_torque_tmp);
   return output_torque_;
 }

@@ -5,7 +5,7 @@ gazebo_dc_motor:
     right_pad2_joint: {p: 1000.0, i: 0.01, d: 10.0}
   motor_characteristics:
     right_pad2_joint:
-      motor_model_type: Default
+      motor_model_type: Duty
       stall_effort: 10.00
       noload_speed: 3.1416
       back_emf_lpf_time_constant: 0.003
