@@ -49,11 +49,15 @@ double DCMotorCurrentModel::update(double input_torque,double input_position){
     position_diff += (double)( (int)(-position_diff / (2.0*M_PI) ) )*2.0*M_PI;
   }
   double motor_speed = position_diff / dt_;
-  // Limit speed (testing function)
+  // Escape over-speed (testing)
   if(motor_speed > 2.0 * max_motor_speed_){
     motor_speed = 2.0 * max_motor_speed_;
+    output_torque_ = output_torque_low_pass_filter_.update(0.0);
+    return output_torque_;
   }else if(motor_speed < -2.0 * max_motor_speed_){
     motor_speed = -2.0 * max_motor_speed_;
+    output_torque_ = output_torque_low_pass_filter_.update(0.0);
+    return output_torque_;
   }
   // Calculate the characteristic curve of the DC motor.
   // 1. Calculate maximum and minimum torque at current angular velocity. (with positive and negative rated voltage)
