@@ -7,6 +7,7 @@
 // MotorModel
 #include "gazebo_dc_motor/dc_motor_current_model.h"
 #include "gazebo_dc_motor/dc_motor_duty_model.h"
+#include "gazebo_dc_motor/dc_motor_default_model.h"
 
 class DCMotorModelSwitcher {
  public:
@@ -28,6 +29,7 @@ class DCMotorModelSwitcher {
   double dt_;
   DCMotorCurrentModel dc_motor_current_model_;
   DCMotorDutyModel dc_motor_duty_model_;
+  DCMotorDefaultModel dc_motor_default_model_;
 };
 
 #endif
