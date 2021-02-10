@@ -60,18 +60,48 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
 
   double internal_noload_speed = duty * max_motor_speed_;
   double internal_stall_torque = duty * max_motor_torque_;
-  // double output_torque_tmp = (internal_noload_speed - internal_speed_) * max_motor_torque_ / max_motor_speed_;
-  double output_torque_tmp = internal_stall_torque - internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
-  // ROS_INFO("output_torque_:%f , input_duty:%f , speed:%f", output_torque_ , input_duty , internal_speed_);
 
-  // Ignore over-speed breaking (reverse-side) torque
-  // if(output_torque_tmp * input_duty < 0.000001){
+  // PWM: ON-FREE mode (stable)
+  double output_torque_on;
+  if(duty > 0.0){
+    output_torque_on = max_motor_torque_ - internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
+  }else{
+    output_torque_on = -max_motor_torque_ - internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
+  }
+  double output_torque_off = 0.0;
+  double output_torque_tmp = std::abs(duty) * output_torque_on + (1.0 - std::abs(duty)) * output_torque_off;
+
+  // PWM: ON-BREAK mode (unstable)
+  // double output_torque_tmp = (internal_noload_speed - internal_speed_) * max_motor_torque_ / max_motor_speed_;
+  // double output_torque_tmp = internal_stall_torque - internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
+  // double output_torque_on;
+  // if(duty > 0.0){
+  //   output_torque_on = max_motor_torque_ - internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
+  // }else{
+  //   output_torque_on = -max_motor_torque_ - internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
+  // }
+  // double output_torque_off = - 1.0 * internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
+  // double output_torque_tmp = std::abs(duty) * output_torque_on + (1.0 - std::abs(duty)) * output_torque_off;
+  // if(output_torque_on * output_torque_off > 0.0){
+  //   output_torque_tmp = std::abs(duty) * output_torque_on;
+  // }else if(output_torque_tmp * output_torque_on < 0.0) {
   //   output_torque_tmp = 0.0;
   // }
-  // Disable reverse-torque boost (stabilize)
-  if(abs(output_torque_tmp)>abs(internal_stall_torque)){
-    output_torque_tmp = internal_stall_torque;
-  }
+
+  // PWM: ON-BREAK-like mode
+  // Limit back-EMF torque
+  // double output_torque_tmp = (internal_noload_speed - internal_speed_) * max_motor_torque_ / max_motor_speed_;
+  // double output_torque_tmp = internal_stall_torque - internal_speed_ * (max_motor_torque_ / max_motor_speed_ );
+  // if(std::abs(output_torque_tmp) > std::abs(2.0*internal_stall_torque)){
+  //   output_torque_tmp = 2.0*internal_stall_torque;
+  // }
+  // if(output_torque_tmp * internal_stall_torque < 0.0){
+  //   output_torque_tmp = 0.0;
+  // }
+  
+
+  // ROS_INFO("output_torque_:%f , input_duty:%f ->%f, speed:%f", output_torque_tmp , duty,std::abs(duty), internal_speed_);
+
   output_torque_ = output_torque_low_pass_filter_.update(output_torque_tmp);
   return output_torque_;
 }
