@@ -21,10 +21,11 @@ DCMotorCurrentModel::~DCMotorCurrentModel() {}
 
 void DCMotorCurrentModel::setMaxMotorSpeed(double max_motor_speed) {
   max_motor_speed_ = max_motor_speed;
+  input_speed_low_pass_filter_.setMinMax(-max_motor_speed, max_motor_speed);
 }
 void DCMotorCurrentModel::setMaxMotorTorque(double max_motor_torque) {
   max_motor_torque_ = max_motor_torque;
-  input_speed_low_pass_filter_.setMinMax(-max_motor_torque_, max_motor_torque_);
+  output_torque_low_pass_filter_.setMinMax(-2.0*max_motor_torque_, 2.0*max_motor_torque_);
 }
 void DCMotorCurrentModel::setDt(double input_dt) {
   dt_ = input_dt;
