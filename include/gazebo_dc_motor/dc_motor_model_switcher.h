@@ -19,7 +19,8 @@ class DCMotorModelSwitcher {
   void setMaxMotorSpeed(double max_motor_speed);
   void setMaxMotorTorque(double max_motor_torque);
   void setDt(double input_dt);
-  void setLowPassTimeConstant(double input_time_constant);
+  void setSpeedLowPassTimeConstant(double input_time_constant);
+  void setTorqueLowPassTimeConstant(double input_time_constant);
   double update(double input_torque,double input_position);
   
  private:

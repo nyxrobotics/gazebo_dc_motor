@@ -13,7 +13,8 @@ class DCMotorDutyModel {
   void setMaxMotorTorque(double max_motor_torque);
 
   void setDt(double input_dt);
-  void setLowPassTimeConstant(double input_time_constant);
+  void setSpeedLowPassTimeConstant(double input_time_constant);
+  void setTorqueLowPassTimeConstant(double input_time_constant);
   double update(double input_duty,double input_position);
   
  private:
@@ -23,7 +24,8 @@ class DCMotorDutyModel {
   double max_motor_torque_; //[N*m]
   double output_torque_;
   //params for low-pass filter
-  LowPassFilter motor_speed_low_pass_filter_;
+  LowPassFilter input_speed_low_pass_filter_;
+  LowPassFilter output_torque_low_pass_filter_;
   //internal value
   double internal_max_speed_;
   double internal_speed_;

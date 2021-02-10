@@ -274,7 +274,7 @@ bool DefaultRobotHWSim::initSim(
       }else if(motor_model_type == "duty" || motor_model_type == "Duty" ){
         ROS_WARN_STREAM("joint_names_[j] : Duty Motor Model");
         dc_motor_model_[j].setDutyMode();
-      }else if(motor_model_type == "effort" || motor_model_type == "Effort" ){
+      }else if(motor_model_type == "default" || motor_model_type == "Default" ){
         ROS_WARN_STREAM("joint_names_[j] : Default Motor Model");
         dc_motor_model_[j].setDefaultMode();
       }else{
@@ -284,9 +284,9 @@ bool DefaultRobotHWSim::initSim(
     }else{
       ROS_WARN_STREAM("Parameter not found: "
         + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
-        + joint_names_[j] + "/use_current_model");
+        + joint_names_[j] + "/motor_model_type");
     }
-    double stall_effort, noload_speed, back_emf_lpf_time_constant;
+    double stall_effort, noload_speed, back_emf_lpf_time_constant, out_torque_lpf_time_constant;
     if (nh_motor.getParam("stall_effort", stall_effort)){
       dc_motor_model_[j].setMaxMotorTorque(stall_effort);
     }else{
@@ -304,11 +304,18 @@ bool DefaultRobotHWSim::initSim(
     }
     
     if (nh_motor.getParam("back_emf_lpf_time_constant", back_emf_lpf_time_constant)){
-      dc_motor_model_[j].setLowPassTimeConstant(back_emf_lpf_time_constant);
+      dc_motor_model_[j].setSpeedLowPassTimeConstant(back_emf_lpf_time_constant);
     }else{
       ROS_WARN_STREAM("Parameter not found: "
         + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
         + joint_names_[j] + "/back_emf_lpf_time_constant");
+    }    
+    if (nh_motor.getParam("out_torque_lpf_time_constant", out_torque_lpf_time_constant)){
+      dc_motor_model_[j].setTorqueLowPassTimeConstant(out_torque_lpf_time_constant);
+    }else{
+      ROS_WARN_STREAM("Parameter not found: "
+        + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
+        + joint_names_[j] + "/out_torque_lpf_time_constant");
     }
 
   }

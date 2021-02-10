@@ -7,9 +7,9 @@ DCMotorModelSwitcher::DCMotorModelSwitcher():
   dt_(0.001)
  {
   dc_motor_current_model_.setDt(0.001);
-  dc_motor_current_model_.setLowPassTimeConstant(0.001);
+  dc_motor_current_model_.setSpeedLowPassTimeConstant(0.001);
   dc_motor_duty_model_.setDt(0.001);
-  dc_motor_duty_model_.setLowPassTimeConstant(0.002);
+  dc_motor_duty_model_.setSpeedLowPassTimeConstant(0.002);
   dc_motor_default_model_.setDt(0.001);
 }
 
@@ -52,11 +52,18 @@ void DCMotorModelSwitcher::setDt(double input_dt) {
     dc_motor_default_model_.setDt(input_dt);
   }
 }
-void DCMotorModelSwitcher::setLowPassTimeConstant(double input_time_constant) {
+void DCMotorModelSwitcher::setSpeedLowPassTimeConstant(double input_time_constant) {
   if(mode_num_==mode_enum_::Current){
-    dc_motor_current_model_.setLowPassTimeConstant(input_time_constant);
+    dc_motor_current_model_.setSpeedLowPassTimeConstant(input_time_constant);
   }else if(mode_num_==mode_enum_::Duty){
-    dc_motor_duty_model_.setLowPassTimeConstant(input_time_constant);
+    dc_motor_duty_model_.setSpeedLowPassTimeConstant(input_time_constant);
+  }
+}
+void DCMotorModelSwitcher::setTorqueLowPassTimeConstant(double input_time_constant) {
+  if(mode_num_==mode_enum_::Current){
+    dc_motor_current_model_.setTorqueLowPassTimeConstant(input_time_constant);
+  }else if(mode_num_==mode_enum_::Duty){
+    dc_motor_duty_model_.setTorqueLowPassTimeConstant(input_time_constant);
   }
 }
 double DCMotorModelSwitcher::update(double input_torque,double input_position){
