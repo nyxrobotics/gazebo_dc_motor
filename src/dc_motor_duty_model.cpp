@@ -65,27 +65,13 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
   // ROS_INFO("output_torque_:%f , input_duty:%f , speed:%f", output_torque_ , input_duty , internal_speed_);
 
   // Ignore over-speed breaking (reverse-side) torque
-  if(internal_speed_ > internal_noload_speed && internal_noload_speed > 0.0){
-    internal_speed_ = internal_noload_speed;
-  }else if(internal_speed_ < internal_noload_speed && internal_noload_speed < 0.0){
-    internal_speed_ = internal_noload_speed;
-  }
-  double max_internal_torque =  internal_stall_torque * ( internal_noload_speed - internal_speed_) / internal_noload_speed;
-  double min_internal_torque = max_internal_torque - 2.0 * internal_stall_torque;
-  if(output_torque_tmp > max_internal_torque){
-    output_torque_tmp = max_internal_torque;
-  }else if(output_torque_tmp < min_internal_torque){
-    output_torque_tmp = min_internal_torque;
-  }
-  if(output_torque_tmp * input_duty < 0.000001){
-    output_torque_tmp = 0.0;
-  }
+  // if(output_torque_tmp * input_duty < 0.000001){
+  //   output_torque_tmp = 0.0;
+  // }
+  // Disable reverse-torque boost (stabilize)
   if(abs(output_torque_tmp)>abs(internal_stall_torque)){
     output_torque_tmp = internal_stall_torque;
   }
-
-  // output_torque_ = output_torque_low_pass_filter_.updateOnlyRising(output_torque_tmp);
-  // output_torque_ = output_torque_tmp;
   output_torque_ = output_torque_low_pass_filter_.update(output_torque_tmp);
   return output_torque_;
 }
