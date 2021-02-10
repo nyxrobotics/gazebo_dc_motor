@@ -27,7 +27,6 @@ class DCMotorDutyModel {
   LowPassFilter input_speed_low_pass_filter_;
   LowPassFilter output_torque_low_pass_filter_;
   //internal value
-  double internal_max_speed_;
   double internal_speed_;
 };
 

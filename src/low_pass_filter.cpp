@@ -44,16 +44,89 @@ double LowPassFilter::getData(void) {
   return low_pass_output_;
 }
 double LowPassFilter::update(double input_data) {
+  // Limit input
+  double input_limited = input_data;
+  if(input_limited > output_max_){
+    input_limited = output_max_;
+  }else if(input_limited < output_min_){
+    input_limited = output_min_;
+  }
   if( (dt_ / time_constant_) < 0.9999 ){
-    low_pass_output_ += (input_data - low_pass_output_) * dt_ / time_constant_;
+    low_pass_output_ += (input_limited - low_pass_output_) * dt_ / time_constant_;
   }else{
 //    ROS_INFO_THROTTLE (1.0, "No Low Pass Filter");
     low_pass_output_ = input_data;
   }
+  // Limit output
   if(low_pass_output_ > output_max_){
     low_pass_output_ = output_max_;
   }else if(low_pass_output_ < output_min_){
     low_pass_output_ = output_min_;
   }
+  return low_pass_output_;
+}
+double LowPassFilter::updateOnlyRising(double input_data) {
+  // Limit input
+  double input_limited = input_data;
+  if(input_limited > output_max_){
+    input_limited = output_max_;
+  }else if(input_limited < output_min_){
+    input_limited = output_min_;
+  }
+  if( (dt_ / time_constant_) < 0.9999 ){
+    low_pass_output_ += (input_limited - low_pass_output_) * dt_ / time_constant_;
+  }else{
+//    ROS_INFO_THROTTLE (1.0, "No Low Pass Filter");
+    low_pass_output_ = input_data;
+  }
+  // Limit output
+  if(low_pass_output_ > output_max_){
+    low_pass_output_ = output_max_;
+  }else if(low_pass_output_ < output_min_){
+    low_pass_output_ = output_min_;
+  }
+  // Apply LPF only Rising
+  if(low_pass_output_ * input_limited < 0.0){
+    low_pass_output_ = 0.0;
+  }else if(abs(low_pass_output_) > abs(input_limited)){
+    low_pass_output_ = input_limited;
+  }
+  return low_pass_output_;
+}
+double LowPassFilter::updateOnlyFalling(double input_data) {
+  // Limit input
+  double input_limited = input_data;
+  if(input_limited > output_max_){
+    input_limited = output_max_;
+  }else if(input_limited < output_min_){
+    input_limited = output_min_;
+  }
+  if( (dt_ / time_constant_) < 0.9999 ){
+    low_pass_output_ += (input_limited - low_pass_output_) * dt_ / time_constant_;
+  }else{
+//    ROS_INFO_THROTTLE (1.0, "No Low Pass Filter");
+    low_pass_output_ = input_data;
+  }
+  // Limit output
+  if(low_pass_output_ > output_max_){
+    low_pass_output_ = output_max_;
+  }else if(low_pass_output_ < output_min_){
+    low_pass_output_ = output_min_;
+  }
+  // Apply LPF only Falling
+  if(abs(low_pass_output_) < abs(input_limited)){
+    low_pass_output_ = input_limited;
+  }
+  return low_pass_output_;
+}
+double LowPassFilter::updatePassthrough(double input_data) {
+  // Limit input
+  double input_limited = input_data;
+  if(input_limited > output_max_){
+    input_limited = output_max_;
+  }else if(input_limited < output_min_){
+    input_limited = output_min_;
+  }
+  low_pass_output_ = input_limited;
   return low_pass_output_;
 }

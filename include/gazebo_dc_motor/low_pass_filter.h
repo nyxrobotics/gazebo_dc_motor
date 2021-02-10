@@ -13,6 +13,9 @@ class LowPassFilter {
   void setData(double input_data);
   double getData(void);
   double update(double input_data);
+  double updateOnlyRising(double input_data);
+  double updateOnlyFalling(double input_data);
+  double updatePassthrough(double input_data);
 
  private:
   double dt_;
