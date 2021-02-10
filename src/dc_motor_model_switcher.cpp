@@ -3,10 +3,8 @@
 
 // Constructor
 DCMotorModelSwitcher::DCMotorModelSwitcher():
-  current_mode_flag_(true),
-  dt_(0.001),
-  max_motor_speed_(3.1416),
-  max_motor_torque_(10.000)
+  mode_num_(true),
+  dt_(0.001)
  {
   dc_motor_current_model_.setDt(0.001);
   dc_motor_current_model_.setLowPassTimeConstant(0.001);
@@ -18,44 +16,47 @@ DCMotorModelSwitcher::DCMotorModelSwitcher():
 DCMotorModelSwitcher::~DCMotorModelSwitcher() {}
 
 void DCMotorModelSwitcher::setCurrentMode(void) {
-  current_mode_flag_ = true;
+  mode_num_ = mode_enum_::Current;
 }
 void DCMotorModelSwitcher::setDutyMode(void) {
-  current_mode_flag_ = false;
+  mode_num_ = mode_enum_::Duty;
+}
+void DCMotorModelSwitcher::setDefaultMode(void) {
+  mode_num_ = mode_enum_::Default;
 }
 void DCMotorModelSwitcher::setMaxMotorSpeed(double max_motor_speed) {
-  if(current_mode_flag_){
+  if(mode_num_==mode_enum_::Current){
     dc_motor_current_model_.setMaxMotorSpeed(max_motor_speed);
-  }else{
+  }else if(mode_num_==mode_enum_::Duty){
     dc_motor_duty_model_.setMaxMotorSpeed(max_motor_speed);
   }
 }
 void DCMotorModelSwitcher::setMaxMotorTorque(double max_motor_torque) {
-  if(current_mode_flag_){
+  if(mode_num_==mode_enum_::Current){
     dc_motor_current_model_.setMaxMotorTorque(max_motor_torque);
-  }else{
+  }else if(mode_num_==mode_enum_::Duty){
     dc_motor_duty_model_.setMaxMotorTorque(max_motor_torque);
   }
 }
 void DCMotorModelSwitcher::setDt(double input_dt) {
-  if(current_mode_flag_){
+  if(mode_num_==mode_enum_::Current){
     dc_motor_current_model_.setDt(input_dt);
-  }else{
+  }else if(mode_num_==mode_enum_::Duty){
     dc_motor_duty_model_.setDt(input_dt);
   }
 }
 void DCMotorModelSwitcher::setLowPassTimeConstant(double input_time_constant) {
-  if(current_mode_flag_){
+  if(mode_num_==mode_enum_::Current){
     dc_motor_current_model_.setLowPassTimeConstant(input_time_constant);
-  }else{
+  }else if(mode_num_==mode_enum_::Duty){
     dc_motor_duty_model_.setLowPassTimeConstant(input_time_constant);
   }
 }
 double DCMotorModelSwitcher::update(double input_torque,double input_position){
-  double output_torque;
-  if(current_mode_flag_){
+  double output_torque = input_torque;
+  if(mode_num_==mode_enum_::Current){
     output_torque = dc_motor_current_model_.update(input_torque,input_position);
-  }else{
+  }else if(mode_num_==mode_enum_::Duty){
     output_torque = dc_motor_duty_model_.update(input_torque,input_position);
   }
   return output_torque;

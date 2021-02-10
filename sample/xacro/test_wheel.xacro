@@ -41,6 +41,9 @@
         <xacro:if value="${gazebo_control_mode=='effort'}">
           <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </xacro:if>
+        <xacro:if value="${gazebo_control_mode=='position'}">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface> 
+        </xacro:if>
         <xacro:if value="${gazebo_control_mode=='velocity'}">
           <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface> 
         </xacro:if>
@@ -49,7 +52,13 @@
     </transmission>
   </xacro:macro>
 
-
+<!--   <link name="world"/>
+  <joint name="world_joint" type="fixed">
+    <parent link="world"/>
+    <child  link="right_pad2"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint> -->
   <link name="right_pad2">
     <visual>
       <origin xyz="0.5 0 0.25" rpy="0 0 0"/>

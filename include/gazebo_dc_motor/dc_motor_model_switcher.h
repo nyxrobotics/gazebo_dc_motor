@@ -14,6 +14,7 @@ class DCMotorModelSwitcher {
   ~DCMotorModelSwitcher();
   void setCurrentMode(void);
   void setDutyMode(void);
+  void setDefaultMode(void);
   void setMaxMotorSpeed(double max_motor_speed);
   void setMaxMotorTorque(double max_motor_torque);
   void setDt(double input_dt);
@@ -22,10 +23,9 @@ class DCMotorModelSwitcher {
   
  private:
   //params
-  bool current_mode_flag_; //true:current, false:duty
+  char mode_num_; //true:current, false:duty
+  enum mode_enum_ : char {Duty, Current, Default};
   double dt_;
-  double max_motor_speed_; //[rad/s]
-  double max_motor_torque_; //[N*m]
   DCMotorCurrentModel dc_motor_current_model_;
   DCMotorDutyModel dc_motor_duty_model_;
 };

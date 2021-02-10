@@ -266,14 +266,20 @@ bool DefaultRobotHWSim::initSim(
     const ros::NodeHandle nh_motor(robot_namespace
       + "/gazebo_dc_motor/motor_characteristics/"
       + joint_names_[j]);
-    bool use_current_model;
-    if (nh_motor.getParam("use_current_model", use_current_model)){
-      if(use_current_model){
+    std::string motor_model_type;
+    if (nh_motor.getParam("motor_model_type", motor_model_type)){
+      if(motor_model_type == "current" || motor_model_type == "Current" ){
         ROS_WARN_STREAM("joint_names_[j] : Curremt Motor Model");
         dc_motor_model_[j].setCurrentMode();
-      }else{
+      }else if(motor_model_type == "duty" || motor_model_type == "Duty" ){
         ROS_WARN_STREAM("joint_names_[j] : Duty Motor Model");
         dc_motor_model_[j].setDutyMode();
+      }else if(motor_model_type == "effort" || motor_model_type == "Effort" ){
+        ROS_WARN_STREAM("joint_names_[j] : Default Motor Model");
+        dc_motor_model_[j].setDefaultMode();
+      }else{
+        ROS_FATAL_STREAM("joint_names_[j] : UNKNOWN Motor Model");
+        dc_motor_model_[j].setDefaultMode();
       }
     }else{
       ROS_WARN_STREAM("Parameter not found: "
