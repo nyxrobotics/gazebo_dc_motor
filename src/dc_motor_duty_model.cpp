@@ -86,24 +86,21 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
 
   // Ignore over-speed breaking (reverse-side) torque
   double internal_stall_torque = duty * max_motor_torque_;
+  if(internal_speed_ > max_motor_speed_){
+    internal_speed_ = max_motor_speed_;
+  }else if(internal_speed_ < -max_motor_speed_){
+    internal_speed_ = -max_motor_speed_;
+  }
   if(output_torque_tmp * input_duty < 0.000001){
     output_torque_tmp = 0.0;
   }
   if(input_duty > 0.0){
-    if(output_torque_tmp > internal_stall_torque){
-      if(internal_speed_ > 0.0){
-        output_torque_tmp = internal_stall_torque;
-      }else if(output_torque_tmp > internal_stall_torque * ( 1.0 - (internal_speed_/max_motor_speed_) ) ){
-        output_torque_tmp = internal_stall_torque * ( 1.0 - (internal_speed_/max_motor_speed_) );
-      }
+    if(output_torque_tmp > internal_stall_torque * (1.0 - (internal_speed_/max_motor_speed_) ) ){
+      output_torque_tmp = internal_stall_torque;
     }
   }else{
-    if(output_torque_tmp < internal_stall_torque){
-      if(internal_speed_ < 0.0){
-        output_torque_tmp = internal_stall_torque;
-      }else if(output_torque_tmp < internal_stall_torque * ( 1.0 + (internal_speed_/max_motor_speed_) ) ){
-        output_torque_tmp = internal_stall_torque * ( 1.0 + (internal_speed_/max_motor_speed_) );
-      }
+    if(output_torque_tmp < internal_stall_torque * (1.0 + (internal_speed_/max_motor_speed_) ) ){
+      output_torque_tmp = internal_stall_torque;
     }
   }
 
