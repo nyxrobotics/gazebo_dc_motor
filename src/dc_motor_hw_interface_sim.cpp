@@ -277,6 +277,9 @@ bool DefaultRobotHWSim::initSim(
       }else if(motor_model_type == "default" || motor_model_type == "Default" ){
         ROS_WARN_STREAM("joint_names_[j] : Default Motor Model");
         dc_motor_model_[j].setDefaultMode();
+      }else if(motor_model_type == "voltage" || motor_model_type == "Voltage" ){
+        ROS_WARN_STREAM("joint_names_[j] : Voltage Motor Model");
+        dc_motor_model_[j].setDefaultMode();
       }else{
         ROS_FATAL_STREAM("joint_names_[j] : UNKNOWN Motor Model");
         dc_motor_model_[j].setDefaultMode();
@@ -317,6 +320,14 @@ bool DefaultRobotHWSim::initSim(
         + robot_namespace + " /gazebo_dc_motor/motor_characteristics/"
         + joint_names_[j] + "/out_torque_lpf_time_constant");
     }
+
+    if(motor_model_type == "voltage" || motor_model_type == "Voltage" ){
+      double virtual_damping = joint->GetDamping(0);
+      virtual_damping += (stall_effort / noload_speed);
+      ROS_WARN("Set joint damping -> %f",virtual_damping);
+      joint->SetDamping(0, virtual_damping);
+    }
+
 
   }
 
