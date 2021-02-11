@@ -279,7 +279,7 @@ bool DefaultRobotHWSim::initSim(
         dc_motor_model_[j].setDefaultMode();
       }else if(motor_model_type == "voltage" || motor_model_type == "Voltage" ){
         ROS_WARN_STREAM("joint_names_[j] : Voltage Motor Model");
-        dc_motor_model_[j].setDefaultMode();
+        dc_motor_model_[j].setVoltageMode();
       }else{
         ROS_FATAL_STREAM("joint_names_[j] : UNKNOWN Motor Model");
         dc_motor_model_[j].setDefaultMode();
@@ -322,13 +322,8 @@ bool DefaultRobotHWSim::initSim(
     }
 
     if(motor_model_type == "voltage" || motor_model_type == "Voltage" ){
-      double virtual_damping = joint->GetDamping(0);
-      virtual_damping += (stall_effort / noload_speed);
-      ROS_WARN("Set joint damping -> %f",virtual_damping);
-      joint->SetDamping(0, virtual_damping);
+      dc_motor_model_[j].voltageModeSetBackEMFDamping(joint);
     }
-
-
   }
 
   // Register interfaces
@@ -359,7 +354,9 @@ void DefaultRobotHWSim::readSim(ros::Time time, ros::Duration period) {
           angles::shortest_angular_distance(joint_position_[j], position);
     }
     joint_velocity_[j] = sim_joints_[j]->GetVelocity(0);
-    joint_effort_[j] = sim_joints_[j]->GetForce((unsigned int)(0));
+//    joint_effort_[j] = sim_joints_[j]->GetForce((unsigned int)(0));
+    double effort_tmp = sim_joints_[j]->GetForce((unsigned int)(0));
+    joint_effort_[j] = dc_motor_model_[j].voltageModeCompensateBackEMFTorque(effort_tmp);
   }
 }
 

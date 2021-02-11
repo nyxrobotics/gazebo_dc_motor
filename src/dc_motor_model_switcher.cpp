@@ -25,13 +25,18 @@ void DCMotorModelSwitcher::setDutyMode(void) {
 void DCMotorModelSwitcher::setDefaultMode(void) {
   mode_num_ = mode_enum_::Default;
 }
+void DCMotorModelSwitcher::setVoltageMode(void) {
+  mode_num_ = mode_enum_::Voltage;
+}
 void DCMotorModelSwitcher::setMaxMotorSpeed(double max_motor_speed) {
   if(mode_num_==mode_enum_::Current){
     dc_motor_current_model_.setMaxMotorSpeed(max_motor_speed);
   }else if(mode_num_==mode_enum_::Duty){
     dc_motor_duty_model_.setMaxMotorSpeed(max_motor_speed);
-  }else if(mode_num_==mode_enum_::Default){
+  }else if(mode_num_==mode_enum_::Default ){
     dc_motor_default_model_.setMaxMotorSpeed(max_motor_speed);
+  }else if(mode_num_==mode_enum_::Voltage ){
+    dc_motor_voltage_model_.setMaxMotorSpeed(max_motor_speed);
   }
 }
 void DCMotorModelSwitcher::setMaxMotorTorque(double max_motor_torque) {
@@ -41,6 +46,8 @@ void DCMotorModelSwitcher::setMaxMotorTorque(double max_motor_torque) {
     dc_motor_duty_model_.setMaxMotorTorque(max_motor_torque);
   }else if(mode_num_==mode_enum_::Default){
     dc_motor_default_model_.setMaxMotorTorque(max_motor_torque);
+  }else if(mode_num_==mode_enum_::Voltage){
+    dc_motor_voltage_model_.setMaxMotorTorque(max_motor_torque);
   }
 }
 void DCMotorModelSwitcher::setDt(double input_dt) {
@@ -50,6 +57,8 @@ void DCMotorModelSwitcher::setDt(double input_dt) {
     dc_motor_duty_model_.setDt(input_dt);
   }else if(mode_num_==mode_enum_::Default){
     dc_motor_default_model_.setDt(input_dt);
+  }else if(mode_num_==mode_enum_::Voltage){
+    dc_motor_voltage_model_.setDt(input_dt);
   }
 }
 void DCMotorModelSwitcher::setSpeedLowPassTimeConstant(double input_time_constant) {
@@ -74,7 +83,18 @@ double DCMotorModelSwitcher::update(double input_torque,double input_position){
     output_torque = dc_motor_duty_model_.update(input_torque,input_position);
   }else if(mode_num_==mode_enum_::Default){
     output_torque = dc_motor_default_model_.update(input_torque,input_position);
+  }else if(mode_num_==mode_enum_::Voltage){
+    output_torque = dc_motor_voltage_model_.update(input_torque,input_position);
   }
   return output_torque;
 }
-
+void DCMotorModelSwitcher::voltageModeSetBackEMFDamping(gazebo::physics::JointPtr joint_ptr){
+  dc_motor_voltage_model_.setBackEMFDamping(joint_ptr);
+}
+double DCMotorModelSwitcher::voltageModeCompensateBackEMFTorque(double torque_raw){
+  double output_torque = torque_raw;
+  if(mode_num_ == mode_enum_::Voltage){
+    output_torque = dc_motor_voltage_model_.compensateBackEMFTorque(torque_raw);
+  }
+  return output_torque;
+}

@@ -8,7 +8,8 @@ DCMotorCurrentModel::DCMotorCurrentModel():
   max_motor_torque_(100.0),
   output_torque_(0.0),
   min_internal_torque_(-1000.0),
-  max_internal_torque_(1000.0)
+  max_internal_torque_(1000.0),
+  internal_speed_(0.0)
  {
   input_speed_low_pass_filter_.setDt(0.001);
   input_speed_low_pass_filter_.setTimeConstant(0.001);

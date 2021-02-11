@@ -51,6 +51,7 @@ add_library(dc_motor_hw_interface_sim
   src/dc_motor_current_model.cpp
   src/dc_motor_duty_model.cpp
   src/dc_motor_default_model.cpp
+  src/dc_motor_voltage_model.cpp
   src/low_pass_filter.cpp
 )
 target_link_libraries(dc_motor_hw_interface_sim ${catkin_LIBRARIES})

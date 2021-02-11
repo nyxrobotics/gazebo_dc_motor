@@ -27,19 +27,8 @@ double DCMotorDefaultModel::update(double input_torque,double input_position){
   static double previous_position = input_position;
   double position_diff = input_position - previous_position;
   previous_position = input_position;
-  // Rotational motion through the origin　(only for continuous joint)
-  if(position_diff > M_PI){
-    position_diff -= (double)( (int)( position_diff / (2.0*M_PI) ) )*2.0*M_PI;
-  }else if(position_diff < -M_PI){
-    position_diff += (double)( (int)(-position_diff / (2.0*M_PI) ) )*2.0*M_PI;
-  }
   double motor_speed = position_diff / dt_;
-  // Limit speed sensor (testing function)
-  if(motor_speed > 2.0 * max_motor_speed_){
-    motor_speed = 2.0 * max_motor_speed_;
-  }else if(motor_speed < -2.0 * max_motor_speed_){
-    motor_speed = -2.0 * max_motor_speed_;
-  }
+
   // Defaul model just limits speed and torque
   output_torque_ = input_torque;
   if(motor_speed > max_motor_speed_ && output_torque_ > 0){
