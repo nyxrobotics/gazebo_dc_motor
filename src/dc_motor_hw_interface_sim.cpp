@@ -435,7 +435,7 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period) {
                   -effort_limit, effort_limit);
         double dc_effort = dc_motor_model_[j].update(effort, simulated_position);
         sim_joints_[j]->SetForce(0, dc_effort);
-        // sim_joints_[j]->SetForce(0, effort);
+//         sim_joints_[j]->SetForce(0, effort);
       } break;
 
       case VELOCITY:

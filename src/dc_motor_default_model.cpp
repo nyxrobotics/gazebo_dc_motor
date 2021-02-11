@@ -6,7 +6,9 @@ DCMotorDefaultModel::DCMotorDefaultModel():
   dt_(0.001),
   max_motor_speed_(31.416),
   max_motor_torque_(100.0),
-  output_torque_(0.0)
+  output_torque_(0.0),
+  current_pose_(0.0),
+  previous_pose_(0.0)
  {
 }
 
@@ -24,10 +26,10 @@ void DCMotorDefaultModel::setDt(double input_dt) {
 }
 double DCMotorDefaultModel::update(double input_torque,double input_position){
   // Get motor speed
-  static double previous_position = input_position;
-  double position_diff = input_position - previous_position;
-  previous_position = input_position;
+  current_pose_ = input_position;
+  double position_diff = current_pose_ - previous_pose_;
   double motor_speed = position_diff / dt_;
+  previous_pose_ = current_pose_;
 
   // Defaul model just limits speed and torque
   output_torque_ = input_torque;
@@ -35,7 +37,8 @@ double DCMotorDefaultModel::update(double input_torque,double input_position){
     output_torque_ = 0.0;
   }else if(motor_speed < -max_motor_speed_ && output_torque_ < 0){
     output_torque_ = 0.0;
-  }else if(output_torque_ > max_motor_torque_){
+  }
+  if(output_torque_ > max_motor_torque_){
     output_torque_ = max_motor_torque_;
   }else if(output_torque_ < -max_motor_torque_){
     output_torque_ = -max_motor_torque_;

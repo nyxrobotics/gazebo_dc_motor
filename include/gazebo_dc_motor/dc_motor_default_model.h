@@ -20,7 +20,9 @@ class DCMotorDefaultModel {
   double max_motor_speed_; //[rad/s]
   double max_motor_torque_; //[N*m]
   double output_torque_;
-  //params for low-pass filter
+  //internal value
+  double previous_pose_;
+  double current_pose_;
 };
 
 #endif

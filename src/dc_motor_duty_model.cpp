@@ -7,7 +7,9 @@ DCMotorDutyModel::DCMotorDutyModel():
   max_motor_speed_(3.1416),
   max_motor_torque_(10.000),
   output_torque_(0.0),
-  internal_speed_(0.0)
+  internal_speed_(0.0),
+  current_pose_(0.0),
+  previous_pose_(0.0)
  {
   input_speed_low_pass_filter_.setDt(0.001);
   input_speed_low_pass_filter_.setTimeConstant(0.001);
@@ -48,11 +50,10 @@ double DCMotorDutyModel::update(double input_duty,double input_position){
   double duty = input_limited / max_motor_torque_;
 
   // Get motor speed
-  static double previous_position = input_position;
-  double position_diff = input_position - previous_position;
-  previous_position = input_position;
-
+  current_pose_ = input_position;
+  double position_diff = current_pose_ - previous_pose_;
   double motor_speed = position_diff / dt_;
+  previous_pose_ = current_pose_;
   // Calculate the characteristic curve of the DC motor.
   // 1. Obtain a graph of the relationship between angular velocity and torque using the input voltage. (input_voltage = duty * rated_voltage)
   // 2. Calculate the torque by substituting the current angular velocity.

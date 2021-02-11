@@ -26,6 +26,8 @@ class DCMotorVoltageModel {
   double output_torque_;
   //internal values
   double internal_speed_;
+  double previous_pose_;
+  double current_pose_;
 };
 
 #endif

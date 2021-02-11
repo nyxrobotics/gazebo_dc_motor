@@ -9,7 +9,9 @@ DCMotorCurrentModel::DCMotorCurrentModel():
   output_torque_(0.0),
   min_internal_torque_(-1000.0),
   max_internal_torque_(1000.0),
-  internal_speed_(0.0)
+  internal_speed_(0.0),
+  current_pose_(0.0),
+  previous_pose_(0.0)
  {
   input_speed_low_pass_filter_.setDt(0.001);
   input_speed_low_pass_filter_.setTimeConstant(0.001);
@@ -41,10 +43,10 @@ void DCMotorCurrentModel::setTorqueLowPassTimeConstant(double input_time_constan
 }
 double DCMotorCurrentModel::update(double input_torque,double input_position){
   // Get motor speed
-  static double previous_position = input_position;
-  double position_diff = input_position - previous_position;
-  previous_position = input_position;
+  current_pose_ = input_position;
+  double position_diff = current_pose_ - previous_pose_;
   double motor_speed = position_diff / dt_;
+  previous_pose_ = current_pose_;
   if(motor_speed > 2.0 * max_motor_speed_){
     motor_speed = 2.0 * max_motor_speed_;
   }else if(motor_speed < -2.0 * max_motor_speed_){

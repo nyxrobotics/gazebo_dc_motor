@@ -6,7 +6,9 @@ DCMotorVoltageModel::DCMotorVoltageModel():
   max_motor_speed_(31.416),
   max_motor_torque_(100.0),
   output_torque_(0.0),
-  internal_speed_(0.0)
+  internal_speed_(0.0),
+  current_pose_(0.0),
+  previous_pose_(0.0)
  {
 }
 
@@ -24,10 +26,10 @@ void DCMotorVoltageModel::setDt(double input_dt) {
 }
 double DCMotorVoltageModel::update(double input_torque,double input_position){
   // Get motor speed
-  static double previous_position = input_position;
-  double position_diff = input_position - previous_position;
-  previous_position = input_position;
+  current_pose_ = input_position;
+  double position_diff = current_pose_ - previous_pose_;
   double motor_speed = position_diff / dt_;
+  previous_pose_ = current_pose_;
   internal_speed_ = motor_speed;
 
   // Defaul model just limits speed and torque
