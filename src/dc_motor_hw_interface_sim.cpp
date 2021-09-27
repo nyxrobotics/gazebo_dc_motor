@@ -269,19 +269,19 @@ bool DefaultRobotHWSim::initSim(
     std::string motor_model_type;
     if (nh_motor.getParam("motor_model_type", motor_model_type)){
       if(motor_model_type == "current" || motor_model_type == "Current" ){
-        ROS_WARN_STREAM("joint_names_[j] : Curremt Motor Model");
+        ROS_WARN_STREAM(joint_names_[j] + ": Curremt Motor Model");
         dc_motor_model_[j].setCurrentMode();
       }else if(motor_model_type == "duty" || motor_model_type == "Duty" ){
-        ROS_WARN_STREAM("joint_names_[j] : Duty Motor Model");
+        ROS_WARN_STREAM(joint_names_[j] + ": Duty Motor Model");
         dc_motor_model_[j].setDutyMode();
       }else if(motor_model_type == "default" || motor_model_type == "Default" ){
-        ROS_WARN_STREAM("joint_names_[j] : Default Motor Model");
+        ROS_WARN_STREAM(joint_names_[j] + ": Default Motor Model");
         dc_motor_model_[j].setDefaultMode();
       }else if(motor_model_type == "voltage" || motor_model_type == "Voltage" ){
-        ROS_WARN_STREAM("joint_names_[j] : Voltage Motor Model");
+        ROS_WARN_STREAM(joint_names_[j] + ": Voltage Motor Model");
         dc_motor_model_[j].setVoltageMode();
       }else{
-        ROS_FATAL_STREAM("joint_names_[j] : UNKNOWN Motor Model");
+        ROS_FATAL_STREAM(joint_names_[j] + ": UNKNOWN Motor Model");
         dc_motor_model_[j].setDefaultMode();
       }
     }else{

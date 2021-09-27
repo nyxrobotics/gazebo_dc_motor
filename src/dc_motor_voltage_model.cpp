@@ -55,6 +55,7 @@ double DCMotorVoltageModel::update(double input_torque,double input_position){
 void DCMotorVoltageModel::setBackEMFDamping(gazebo::physics::JointPtr joint_ptr) {
   double virtual_damping = joint_ptr->GetDamping(0) + (max_motor_torque_ / max_motor_speed_);
   ROS_WARN("Set joint damping -> %f",virtual_damping);
+  joint_ptr->Init();
   joint_ptr->SetDamping(0, virtual_damping);
 }
 
